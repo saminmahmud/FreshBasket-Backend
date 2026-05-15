@@ -1,11 +1,10 @@
 from django.shortcuts import get_object_or_404, render
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, permissions, generics
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from apps.products.filters import ProductFilter
 from apps.users.permissions import IsEmailVerified
 from .models import Category, Product, Review, ReviewVote
-from rest_framework import permissions
 from .serializers import CategorySerializer, ProductDetailSerializer, ProductListSerializer, ReviewSerializer, ReviewCreateSerializer, ReviewVoteSerializer
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -61,7 +60,7 @@ class ReviewVoteAPIView(APIView):
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all().select_related('category').prefetch_related('reviews')
+    queryset = Product.objects.all().select_related('category').prefetch_related('reviews', 'reviews__user')
     pagination_class = PageNumberPagination
     page_size = 8
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -80,3 +79,10 @@ class ProductViewSet(viewsets.ModelViewSet):
         else:
             return [permissions.AllowAny()]
 
+    
+class FlashSaleProductListAPIView(generics.ListAPIView):
+    queryset = Product.objects.filter(is_flash_sale=True).select_related('category').prefetch_related('reviews', 'reviews__user')
+    pagination_class = PageNumberPagination
+    page_size = 8
+    serializer_class = ProductListSerializer
+    permission_classes = [permissions.AllowAny]
