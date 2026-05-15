@@ -1,12 +1,14 @@
 from django.shortcuts import get_object_or_404, render
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
+from apps.products.filters import ProductFilter
 from apps.users.permissions import IsEmailVerified
 from .models import Category, Product, Review, ReviewVote
 from rest_framework import permissions
 from .serializers import CategorySerializer, ProductDetailSerializer, ProductListSerializer, ReviewSerializer, ReviewCreateSerializer, ReviewVoteSerializer
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -62,7 +64,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all().select_related('category').prefetch_related('reviews')
     pagination_class = PageNumberPagination
     page_size = 8
- 
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = ProductFilter
+    search_fields = ['name']
+    ordering_fields = ['price', 'created_at']
+
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return ProductDetailSerializer

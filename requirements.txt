@@ -24,6 +24,7 @@ django==6.0.5
     #   dj-rest-auth
     #   django-allauth
     #   django-cors-headers
+    #   django-filter
     #   djangorestframework
     #   djangorestframework-simplejwt
     #   drf-spectacular
@@ -32,6 +33,8 @@ django-allauth==65.16.1
 django-cleanup==9.0.0
     # via freshbasket (pyproject.toml)
 django-cors-headers==4.9.0
+    # via freshbasket (pyproject.toml)
+django-filter==25.2
     # via freshbasket (pyproject.toml)
 djangorestframework==3.17.1
     # via

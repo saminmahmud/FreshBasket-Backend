@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
+    'django_filters',
     'rest_framework.authtoken',
     'allauth',
     'allauth.account',
@@ -184,6 +185,7 @@ REST_FRAMEWORK = {
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 REST_AUTH = {
