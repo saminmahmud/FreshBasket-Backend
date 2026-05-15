@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     # apps
     'apps.home',
     'apps.users',
+    'apps.products',
 ]
 
 if DEBUG:

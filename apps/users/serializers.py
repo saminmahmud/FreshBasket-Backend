@@ -31,3 +31,23 @@ class UserSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(user.avatar)
         else:
             return user.avatar
+        
+
+class UserMiniSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField(read_only=True)
+    name = serializers.ReadOnlyField()
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "name",
+            "avatar",
+        ]
+
+    def get_avatar(self, user):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(user.avatar)
+        else:
+            return user.avatar
