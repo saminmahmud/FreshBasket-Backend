@@ -5,8 +5,7 @@ from django.templatetags.static import static
 
 class CustomUser(AbstractUser):
     image = models.ImageField(upload_to='avatars/', null=True, blank=True)
-    display_name = models.CharField(max_length=255, blank=True, null=True)
-    info = models.TextField(null=True, blank=True) 
+    is_delivery_partner = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
@@ -18,10 +17,3 @@ class CustomUser(AbstractUser):
         except:
             avatar = static('images/avatar.svg')
         return avatar
-    
-    @property
-    def name(self):
-        if self.display_name:
-            return self.display_name
-        else:
-            return self.username

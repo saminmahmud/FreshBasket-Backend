@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from dj_rest_auth.serializers import UserDetailsSerializer
+from drf_spectacular.utils import extend_schema_field
 
 User = get_user_model()
 
@@ -13,18 +14,18 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField(read_only=True)
-    name = serializers.ReadOnlyField()
 
     class Meta:
         model = User
         fields = [
             "id",
-            "name",
+            "username",
             "email",
             "avatar",
-            "info",   
+            "is_delivery_partner",
         ]
 
+    @extend_schema_field(serializers.CharField)
     def get_avatar(self, user):
         request = self.context.get('request')
         if request:
@@ -35,16 +36,16 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserMiniSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField(read_only=True)
-    name = serializers.ReadOnlyField()
 
     class Meta:
         model = User
         fields = [
             "id",
-            "name",
+            "username",
             "avatar",
         ]
 
+    @extend_schema_field(serializers.CharField)
     def get_avatar(self, user):
         request = self.context.get('request')
         if request:

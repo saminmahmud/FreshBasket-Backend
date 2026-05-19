@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'apps.home',
     'apps.users',
     'apps.products',
+    'apps.orders',
 ]
 
 if DEBUG:
@@ -225,3 +226,10 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': f"""API documentation for FreshBasket \n
     Base URL: {config("BACKEND_URL", default="http://127.0.0.1:8000")}""",
 }
+
+
+STORE_ID = config("STORE_ID")
+STORE_PASSWORD = config("STORE_PASSWORD")
+
+BACKEND_URL = config("BACKEND_URL", default="http://localhost:8000") 
+FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:3000") 

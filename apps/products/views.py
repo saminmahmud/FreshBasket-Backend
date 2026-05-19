@@ -24,6 +24,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Review.objects.none()
         return Review.objects.filter(product_id=self.kwargs['product_id']).select_related('user')
 
     def get_serializer_class(self):
@@ -43,6 +45,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class ReviewVoteAPIView(APIView):
     permission_classes = [IsEmailVerified | permissions.IsAdminUser]
+    serializer_class = None
 
     def post(self, request, review_id):
         review = get_object_or_404(Review, id=review_id)

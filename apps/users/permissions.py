@@ -21,3 +21,17 @@ class IsEmailVerified(BasePermission):
             })
 
         return True
+    
+
+class IsDeliveryPartner(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+
+        if not request.user.is_delivery_partner:
+            raise PermissionDenied({
+                "error": "NOT_DELIVERY_PARTNER",
+                "message": "You must be a delivery partner to access this resource."
+            })
+
+        return True

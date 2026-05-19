@@ -73,13 +73,17 @@ referencing==0.37.0
     #   jsonschema
     #   jsonschema-specifications
 requests==2.33.1
-    # via django-allauth
+    # via
+    #   django-allauth
+    #   sslcommerz-lib
 rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
 sqlparse==0.5.5
     # via django
+sslcommerz-lib==1.0
+    # via freshbasket (pyproject.toml)
 tzdata==2026.2
     # via django
 uritemplate==4.2.0

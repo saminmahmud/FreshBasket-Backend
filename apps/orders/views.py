@@ -1,0 +1,140 @@
+from django.shortcuts import render
+from drf_spectacular.utils import extend_schema
+from rest_framework.response import Response
+from .serializers import OrderSerializer, AddressSerializer, DeliveryChargeSerializer, OTPVerificationSerializer, OrderStatusUpdateSerializer
+from .models import Order, Address, DeliveryCharge
+from rest_framework import viewsets, permissions
+from rest_framework.views import APIView
+from apps.users.permissions import IsEmailVerified, IsDeliveryPartner
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view, permission_classes
+from django.http import HttpResponseRedirect
+from .utils import create_sslcommerz_session, validate_sslcommerz_transaction
+from rest_framework.permissions import AllowAny
+from django.conf import settings
+
+FRONTEND_URL = settings.FRONTEND_URL
+
+
+class AddressViewSet(viewsets.ModelViewSet):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+    permission_classes = [IsEmailVerified]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class DeliveryChargeViewSet(viewsets.ModelViewSet):
+    queryset = DeliveryCharge.objects.all()
+    serializer_class = DeliveryChargeSerializer
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAdminUser()]
+        else:
+            return [permissions.AllowAny()]
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all().select_related('user', 'delivery_partner').prefetch_related('items')
+    serializer_class = OrderSerializer
+    permission_classes = [IsEmailVerified]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save(user=request.user)
+
+        if order.payment_method == "cash_on_delivery":
+            return Response({
+                "message": "Order created successfully (Cash on Delivery)",
+                "order_id": order.id
+            }, status=status.HTTP_201_CREATED)
+
+        # ssl session create
+        response = create_sslcommerz_session(order.id)
+
+        if not response or 'GatewayPageURL' not in response:
+            return Response({'error': 'Failed to create SSLCommerz session'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({"payment_url": response['GatewayPageURL'], "order_id": order.id}, status=201)
+
+
+class OTPVerificationAPIView(APIView):
+    permission_classes = [IsDeliveryPartner]
+    serializer_class = None
+
+    def post(self, request):
+        serializer = OTPVerificationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        order_id = serializer.validated_data['order_id']
+        otp = serializer.validated_data['otp']
+
+        try:
+            order = Order.objects.get(id=order_id, user=request.user)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=404)
+
+        if order.otp == otp:
+            order.is_otp_verified = True
+            order.save()
+            return Response({'message': 'OTP verified successfully'}, status=200)
+        else:
+            return Response({'error': 'Invalid OTP'}, status=400)
+        
+
+class OrderStatusUpdateAPIView(APIView):
+    permission_classes = [IsDeliveryPartner, permissions.IsAdminUser]
+    serializer_class = None
+
+    def patch(self, request, order_id):
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=404)
+
+        serializer = OrderStatusUpdateSerializer(order, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        
+        order.save()
+        return Response({'order status': order.order_status}, status=200)
+
+
+@extend_schema(request=None, responses={302: None})
+@csrf_exempt
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def Purchase(request, order_id, tran_id):
+    val_id = request.GET.get("val_id")
+    order_qs = Order.objects.filter(id=order_id, is_paid=False).first()
+    
+    if not order_qs:
+        return HttpResponseRedirect(f'{FRONTEND_URL}/payment?status=failed')
+    
+    if val_id:
+        validation_data = validate_sslcommerz_transaction(val_id)
+        if validation_data.get("status") == "VALID":
+            order_qs.is_paid = True
+            order_qs.transaction_id = tran_id
+            order_qs.save()
+            return HttpResponseRedirect(f'{FRONTEND_URL}/payment?status=success&order_id={order_id}')
+
+    return HttpResponseRedirect(f'{FRONTEND_URL}/payment?status=failed')
+
+
+@extend_schema(request=None, responses={302: None})
+@csrf_exempt
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def Cancle_or_Fail(request, order_id):
+    order_qs = Order.objects.filter(id=order_id, is_paid=False).first()
+    
+    if order_qs:
+        order_qs.delete() 
+        return HttpResponseRedirect(f'{FRONTEND_URL}/payment?status=failed')
+
+    return HttpResponseRedirect(f'{FRONTEND_URL}/payment?status=failed')
+
