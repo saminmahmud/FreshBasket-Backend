@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from products.models import Product
+from apps.products.models import Product
 from apps.orders.utils import generate_otp
 from .models import Order
 from django.db import transaction
