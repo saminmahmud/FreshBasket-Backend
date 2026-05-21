@@ -14,7 +14,7 @@ wheels/
 # db.sqlite3
 
 # Media files
-media/*
+# media/*
 
 # Django collected static files
-staticfiles/*
+# staticfiles/*
