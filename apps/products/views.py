@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from rest_framework import viewsets, filters, permissions, generics
 from rest_framework.views import APIView
-from rest_framework.pagination import PageNumberPagination
+from apps.products.custom_pagination import ProductPagination
 from apps.products.filters import ProductFilter
 from apps.users.permissions import IsEmailVerified
 from .models import Category, Product, Review, ReviewVote
@@ -64,8 +64,7 @@ class ReviewVoteAPIView(APIView):
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all().select_related('category').prefetch_related('reviews', 'reviews__user')
-    pagination_class = PageNumberPagination
-    page_size = 8
+    pagination_class = ProductPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = ProductFilter
     search_fields = ['name']
@@ -85,7 +84,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     
 class FlashSaleProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.filter(is_flash_sale=True).select_related('category').prefetch_related('reviews', 'reviews__user')
-    pagination_class = PageNumberPagination
-    page_size = 8
+    pagination_class = ProductPagination
     serializer_class = ProductListSerializer
     permission_classes = [permissions.AllowAny]

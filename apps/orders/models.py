@@ -24,7 +24,7 @@ class DeliveryCharge(models.Model):
     
 
 class Address(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='address')
     full_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     address = models.TextField()
@@ -73,8 +73,9 @@ class Order(models.Model):
 
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
     transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    tracking_code = models.CharField(max_length=100, null=True, blank=True)
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='pending')
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     is_paid = models.BooleanField(default=False)
     otp = models.CharField(max_length=6, null=True, blank=True)
     is_otp_verified = models.BooleanField(default=False)
@@ -94,6 +95,10 @@ class Order(models.Model):
             models.Index(fields=['order_status']),
             models.Index(fields=['order_status', 'is_otp_verified']),
         ]
+
+    @property
+    def total_price(self):
+        return self.subtotal + self.delivery_charge
     
 
 class OrderItem(models.Model):

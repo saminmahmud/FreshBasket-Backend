@@ -3,8 +3,6 @@ import time
 import requests
 from sslcommerz_lib import SSLCOMMERZ
 from .models import Order
-from rest_framework.response import Response
-from rest_framework import status
 from django.conf import settings
 
 STORE_ID = settings.STORE_ID
@@ -27,7 +25,10 @@ def create_sslcommerz_session(order_id):
         order_qs = Order.objects.get(id=order_id, is_paid=False)
         order_total = order_qs.total_price
         
-        tran_id = order_qs.transaction_id
+        tran_id = generate_transaction_id()
+
+        order_qs.transaction_id = tran_id
+        order_qs.save()
 
         store_settings = {
             'store_id': STORE_ID,  
@@ -40,9 +41,9 @@ def create_sslcommerz_session(order_id):
             'total_amount': order_total,
             'currency': "BDT",
             'tran_id': tran_id,
-            'success_url': f"{BACKEND_URL}api/orders/payment/purchase/{order_id}/{tran_id}/",
-            'fail_url': f"{BACKEND_URL}api/orders/payment/cancle-or-fail/{order_id}/",
-            'cancel_url': f"{BACKEND_URL}api/orders/payment/cancle-or-fail/{order_id}/",
+            'success_url': f"{BACKEND_URL}/api/orders/payment/purchase/{order_id}/{tran_id}/",
+            'fail_url': f"{BACKEND_URL}/api/orders/payment/cancle-or-fail/{order_id}/",
+            'cancel_url': f"{BACKEND_URL}/api/orders/payment/cancle-or-fail/{order_id}/",
             'emi_option': 0,
             'cus_name': order_qs.full_name,
             'cus_email': order_qs.user.email,
@@ -64,17 +65,3 @@ def create_sslcommerz_session(order_id):
     except Exception as e:
         return {'error': str(e)}
 
-
-def validate_sslcommerz_transaction(val_id):
-    url = "https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php"
-
-    params = {
-        "val_id": val_id,
-        "store_id": STORE_ID,
-        "store_passwd": STORE_PASSWORD,
-        "format": "json"
-    }
-
-    response = requests.get(url, params=params)
-    return response.json()
-        

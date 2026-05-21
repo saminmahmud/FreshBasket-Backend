@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from .models import Order, OrderItem, DeliveryCharge, Address
 from apps.users.serializers import UserMiniSerializer
@@ -25,41 +26,46 @@ class OrderSerializer(serializers.ModelSerializer):
     user = UserMiniSerializer(read_only=True)
     items = OrderItemSerializer(many=True)
     delivery_charge = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = [
             'id', 'user', 'full_name', 'phone', 'address', 'city', 'postal_code',
-            'delivery_partner', 'payment_method', 'order_status', 'total_price',
+            'delivery_partner', 'payment_method', 'order_status', 'subtotal', 'total_price', 'tracking_code',
             'is_paid', 'otp', 'is_otp_verified', 'delivery_area', 'delivery_charge',
             'created_at', 'items'
         ]
-        read_only_fields = ['user', 'total_price', 'is_paid', 'otp', 'is_otp_verified', 'delivery_charge', 'created_at']
+        read_only_fields = ['user', 'subtotal', 'total_price', 'is_paid', 'otp', 'is_otp_verified', 'delivery_charge', 'created_at']
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
         order = Order.objects.create(**validated_data)
 
-        total_price = 0
+        subtotal = 0
         for item_data in items_data:
             product = item_data['product']
             quantity = item_data['quantity']
             price = product.final_price * quantity
             OrderItem.objects.create(order=order, product=product, quantity=quantity, price=price)
-            total_price += price
+            subtotal += price
+
+        order.subtotal = subtotal
+        order.tracking_code = f"TRK{generate_transaction_id()}"
 
         area = validated_data.get('delivery_area')
         delivery_charge = DeliveryCharge.objects.filter(delivery_area=area).first()
         
         if delivery_charge:
-            total_price += delivery_charge.charge_amount
             order.delivery_charge = delivery_charge.charge_amount
         
-        order.total_price = total_price
-        order.transaction_id = generate_transaction_id()
         order.save()
         return order
 
+    @extend_schema_field(serializers.DecimalField(max_digits=10, decimal_places=2))
+    def get_total_price(self, obj):
+        return obj.total_price
+    
 
 class AddressSerializer(serializers.ModelSerializer):
     user = UserMiniSerializer(read_only=True)
@@ -80,8 +86,26 @@ class OTPVerificationSerializer(serializers.Serializer):
     otp = serializers.CharField(max_length=6)
 
 
-class OrderStatusUpdateSerializer(serializers.ModelSerializer):
+class OrderTrackingSerializer(serializers.ModelSerializer):
+    total_price = serializers.SerializerMethodField()
+    items = OrderItemSerializer(many=True, read_only=True)
+
     class Meta:
         model = Order
-        fields = ['order_status']
+        fields = [
+            'id', 'full_name', 'phone', 'address', 'city', 'postal_code',
+            'delivery_partner', 'payment_method', 'order_status',
+            'transaction_id', 'tracking_code',
+            'created_at', 'subtotal', 'delivery_charge', 'total_price',
+            'is_otp_verified', 'otp', 'delivery_area', 'items'
+        ]
+        read_only_fields = [
+            'id', 'transaction_id', 'created_at', 'tracking_code',
+            'subtotal', 'delivery_charge', 'total_price', 'items'
+        ]
+
+    @extend_schema_field(serializers.DecimalField(max_digits=10, decimal_places=2))
+    def get_total_price(self, obj):
+        return obj.total_price
+    
     

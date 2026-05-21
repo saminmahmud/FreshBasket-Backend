@@ -4,6 +4,7 @@ from allauth.account.views import ConfirmEmailView
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from config.exceptions import handler400, handler403, handler404, handler500
 
 
 urlpatterns = [
@@ -24,6 +25,11 @@ urlpatterns = [
     path("api/", include("apps.products.urls")),
     path("api/", include("apps.orders.urls"), name="orders"),
 ]
+
+handler400 = 'config.exceptions.handler400'
+handler403 = 'config.exceptions.handler403'
+handler404 = 'config.exceptions.handler404'
+handler500 = 'config.exceptions.handler500'
 
 # Only used in development
 if settings.DEBUG:
