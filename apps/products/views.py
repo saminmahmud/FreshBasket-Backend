@@ -38,9 +38,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in ['create']:
-            return [permissions.IsAdminUser()]
-        else:
-            return [permissions.AllowAny()]
+            return [IsEmailVerified()]
+        return [permissions.AllowAny()]
         
 
 class ReviewVoteAPIView(APIView):

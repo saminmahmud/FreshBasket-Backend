@@ -27,6 +27,8 @@ class AddressViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Address.objects.none()
         return Address.objects.filter(user=self.request.user)
 
 
@@ -42,7 +44,7 @@ class DeliveryChargeViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all().select_related('user', 'delivery_partner').prefetch_related('items')
+
     serializer_class = OrderSerializer
     permission_classes = [IsEmailVerified]
 
@@ -64,6 +66,18 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Failed to create SSLCommerz session'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({"payment_url": response['GatewayPageURL'], "order_id": order.id}, status=201)
+    
+    # admin see all orders, user see their orders, delivery partner see assigned orders
+    def get_queryset(self):
+        user = self.request.user
+        if getattr(self, 'swagger_fake_view', False):
+            return Order.objects.none()
+        if user.is_staff:
+            return Order.objects.all().select_related('user', 'delivery_partner').prefetch_related('items')
+        elif user.is_delivery_partner:
+            return Order.objects.filter(delivery_partner=user).select_related('user', 'delivery_partner').prefetch_related('items')
+        else:
+            return Order.objects.filter(user=user).select_related('user', 'delivery_partner').prefetch_related('items')
 
 
 class OTPVerificationAPIView(APIView):

@@ -1,4 +1,6 @@
+from cloudinary_storage.storage import MediaCloudinaryStorage
 from django.db import models
+from django_resized import ResizedImageField
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
@@ -8,7 +10,7 @@ User = get_user_model()
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    image = models.ImageField(upload_to='categories/', null=True, blank=True)
+    image = ResizedImageField(size=[300, 300], upload_to='categories/', null=True, blank=True, quality=75, storage=MediaCloudinaryStorage())
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -35,7 +37,7 @@ class Product(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.00) # e.g., 10.00 for 10% discount
-    image = models.ImageField(upload_to='products/', null=True, blank=True)
+    image = ResizedImageField(size=[432, 432], upload_to='products/', null=True, blank=True, quality=75, storage=MediaCloudinaryStorage())
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
     unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default='kg')
     unit_quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1.00) # e.g., 250 for 250g

@@ -20,4 +20,4 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['is_delivery_partner']
+    filterset_fields = ['is_delivery_partner', 'is_admin']

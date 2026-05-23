@@ -10,17 +10,26 @@ attrs==26.1.0
     #   jsonschema
     #   referencing
 certifi==2026.4.22
-    # via requests
+    # via
+    #   cloudinary
+    #   requests
 cffi==2.0.0
     # via cryptography
 charset-normalizer==3.4.7
     # via requests
+cloudinary==1.44.2
+    # via
+    #   freshbasket (pyproject.toml)
+    #   django-cloudinary-storage
 cryptography==48.0.0
     # via pyjwt
+dj-database-url==3.1.2
+    # via freshbasket (pyproject.toml)
 dj-rest-auth==7.2.0
     # via freshbasket (pyproject.toml)
 django==6.0.5
     # via
+    #   dj-database-url
     #   dj-rest-auth
     #   django-allauth
     #   django-cors-headers
@@ -32,9 +41,13 @@ django-allauth==65.16.1
     # via dj-rest-auth
 django-cleanup==9.0.0
     # via freshbasket (pyproject.toml)
+django-cloudinary-storage==0.3.0
+    # via freshbasket (pyproject.toml)
 django-cors-headers==4.9.0
     # via freshbasket (pyproject.toml)
 django-filter==25.2
+    # via freshbasket (pyproject.toml)
+django-resized==1.0.3
     # via freshbasket (pyproject.toml)
 djangorestframework==3.17.1
     # via
@@ -62,6 +75,8 @@ packaging==26.2
     # via gunicorn
 pillow==12.2.0
     # via freshbasket (pyproject.toml)
+psycopg2-binary==2.9.12
+    # via freshbasket (pyproject.toml)
 pycparser==3.0
     # via cffi
 pyjwt==2.12.1
@@ -79,11 +94,14 @@ referencing==0.37.0
 requests==2.33.1
     # via
     #   django-allauth
+    #   django-cloudinary-storage
     #   sslcommerz-lib
 rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
+six==1.17.0
+    # via cloudinary
 sqlparse==0.5.5
     # via django
 sslcommerz-lib==1.0
@@ -93,6 +111,8 @@ tzdata==2026.2
 uritemplate==4.2.0
     # via drf-spectacular
 urllib3==2.7.0
-    # via requests
+    # via
+    #   cloudinary
+    #   requests
 whitenoise==6.12.0
     # via freshbasket (pyproject.toml)

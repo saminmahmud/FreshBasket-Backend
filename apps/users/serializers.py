@@ -7,13 +7,20 @@ User = get_user_model()
 
 
 class CustomUserDetailsSerializer(UserDetailsSerializer):
+    is_admin = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = User
-        fields = ('pk', 'username', 'email')
+        fields = ('pk', 'username', 'email', 'is_delivery_partner', 'is_admin')
+
+    @extend_schema_field(serializers.BooleanField)
+    def get_is_admin(self, user):
+        return user.is_staff
 
 
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField(read_only=True)
+    is_admin = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -23,6 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
             "email",
             "avatar",
             "is_delivery_partner",
+            "is_admin",
         ]
 
     @extend_schema_field(serializers.CharField)
@@ -32,6 +40,10 @@ class UserSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(user.avatar)
         else:
             return user.avatar
+        
+    @extend_schema_field(serializers.BooleanField)
+    def get_is_admin(self, user):
+        return user.is_staff
         
 
 class UserMiniSerializer(serializers.ModelSerializer):

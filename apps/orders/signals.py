@@ -53,7 +53,7 @@ def handle_stock_change(sender, instance, created, **kwargs):
 
     if previous_status == 'pending' and new_status == 'confirmed':
         with transaction.atomic():
-            for item in instance.order_items.select_related('product'):
+            for item in instance.items.select_related('product'):
                 product = item.product
 
                 product = Product.objects.select_for_update().get(pk=product.pk)
@@ -66,7 +66,7 @@ def handle_stock_change(sender, instance, created, **kwargs):
 
     if new_status == 'cancelled' and previous_status != 'pending':
         with transaction.atomic():
-            for item in instance.order_items.select_related('product'):
+            for item in instance.items.select_related('product'):
                 product = Product.objects.select_for_update().get(pk=item.product.pk)
                 product.stock += item.quantity
                 product.save()

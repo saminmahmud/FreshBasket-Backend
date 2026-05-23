@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import dj_database_url
 from pathlib import Path
 from datetime import timedelta
 from decouple import config
@@ -50,11 +51,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
     'django.contrib.sites',
     'django_cleanup.apps.CleanupConfig',
     'corsheaders',
     'drf_spectacular',
-    # 'rest_framework_simplejwt.token_blacklist',
     'rest_framework',
     'django_filters',
     'rest_framework.authtoken',
@@ -110,12 +112,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse(config('DATABASE_URL'))
 }
+
 
 
 # Password validation
@@ -165,8 +172,11 @@ STORAGES = {
     },
 }
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '/freshbasket/'
 MEDIA_ROOT = BASE_DIR / 'media' 
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -208,10 +218,8 @@ REST_AUTH = {
 SIMPLE_JWT = {
     # 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'JWT_AUTH_HTTPONLY': True,
-    # "ROTATE_REFRESH_TOKENS": True,
-    # "BLACKLIST_AFTER_ROTATION": True,
 }
 
 SITE_ID = 1
@@ -222,6 +230,7 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory' 
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True # No need to sent POST request to confirmation link
+EMAIL_SUBJECT_PREFIX = ""
 
 FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:3000")
 
@@ -234,7 +243,7 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'DESCRIPTION': f"""API documentation for FreshBasket \n
-    Base URL: {config("BACKEND_URL", default="http://127.0.0.1:8000")}""",
+    Base URL: {config("BACKEND_URL", default="http://localhost:8000")}""",
 }
 
 
@@ -243,3 +252,10 @@ STORE_PASSWORD = config("STORE_PASSWORD")
 
 BACKEND_URL = config("BACKEND_URL", default="http://localhost:8000") 
 FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:3000") 
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUD_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET'),
+}

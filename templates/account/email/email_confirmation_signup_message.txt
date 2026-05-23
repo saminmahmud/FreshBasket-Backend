@@ -4,4 +4,4 @@ This is a custom message, please click the link below to confirm you email addre
 
 [Confirm Email: {{ activate_url }}]
 
-Best, {{ project_title }} Team
+Best, {{ site_name }} Team
