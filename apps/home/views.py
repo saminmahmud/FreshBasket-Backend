@@ -12,7 +12,6 @@ from drf_spectacular.utils import extend_schema
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def welcome_api(request):
-    print("VIEW HIT") 
     return Response({
         "message": f"Welcome to {settings.PROJECT_TITLE}"
     })
