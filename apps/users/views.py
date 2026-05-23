@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from .permissions import IsEmailVerified  
 from .serializers import UserSerializer
 from django_filters.rest_framework import DjangoFilterBackend
+from .filters import UserFilter
 
 User = get_user_model()
 
@@ -20,4 +21,4 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['is_delivery_partner', 'is_admin']
+    filterset_class = UserFilter
