@@ -28,7 +28,7 @@ class IsDeliveryPartner(BasePermission):
         if not request.user.is_authenticated:
             return False
 
-        if not request.user.is_delivery_partner:
+        if not request.user.role == 'delivery_partner':
             raise PermissionDenied({
                 "error": "NOT_DELIVERY_PARTNER",
                 "message": "You must be a delivery partner to access this resource."

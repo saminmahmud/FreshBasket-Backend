@@ -8,3 +8,10 @@ User = get_user_model()
 def user_presave(sender, instance, **kwargs):
     if instance.username:
         instance.username = instance.username.lower()
+
+
+@receiver(pre_save, sender=User)
+def set_admin_role(sender, instance, **kwargs):
+    if instance.is_superuser:
+        instance.role = 'admin' 
+    

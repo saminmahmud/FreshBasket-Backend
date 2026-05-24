@@ -6,8 +6,13 @@ from django.templatetags.static import static
 
 
 class CustomUser(AbstractUser):
+    roles = [
+        ('customer', 'Customer'),
+        ('delivery_partner', 'Delivery Partner'),
+        ('admin', 'Admin'),
+    ]
     image = ResizedImageField(size=[300, 300], upload_to='avatars/', null=True, blank=True, quality=75, storage=MediaCloudinaryStorage())
-    is_delivery_partner = models.BooleanField(default=False)
+    role = models.CharField(max_length=20, choices=roles, default='customer')
 
     def __str__(self):
         return self.username
@@ -22,5 +27,5 @@ class CustomUser(AbstractUser):
     
     class Meta:
         indexes = [
-            models.Index(fields=['is_delivery_partner']),
+            models.Index(fields=['role']),
         ]
