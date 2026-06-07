@@ -165,17 +165,15 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
 MEDIA_URL = '/freshbasket/'
 MEDIA_ROOT = BASE_DIR / 'media' 
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 AUTH_USER_MODEL = 'users.CustomUser'
