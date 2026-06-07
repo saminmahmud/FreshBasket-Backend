@@ -172,6 +172,8 @@ STORAGES = {
     },
 }
 
+WHITENOISE_AUTOREFRESH = True
+
 MEDIA_URL = '/freshbasket/'
 MEDIA_ROOT = BASE_DIR / 'media' 
 
