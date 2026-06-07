@@ -8,8 +8,16 @@
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "dest": "config/wsgi.py"
+    },
+    {
+      "src": "/media/(.*)",
+      "dest": "config/wsgi.py"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/config/wsgi.py"
+      "dest": "config/wsgi.py"
     }
   ]
 }

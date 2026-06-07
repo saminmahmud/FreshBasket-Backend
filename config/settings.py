@@ -175,6 +175,8 @@ STORAGES = {
 MEDIA_URL = '/freshbasket/'
 MEDIA_ROOT = BASE_DIR / 'media' 
 
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
