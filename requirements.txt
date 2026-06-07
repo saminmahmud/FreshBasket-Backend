@@ -106,8 +106,6 @@ sqlparse==0.5.5
     # via django
 sslcommerz-lib==1.0
     # via freshbasket (pyproject.toml)
-typing-extensions==4.15.0
-    # via referencing
 tzdata==2026.2
     # via django
 uritemplate==4.2.0
