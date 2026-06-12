@@ -204,7 +204,6 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'refresh',
     'JWT_AUTH_HTTPONLY': True,
     "USER_DETAILS_SERIALIZER": "apps.users.serializers.CustomUserDetailsSerializer", # Optional: Custom serializer to include additional fields
-    "LOGIN_SERIALIZER": "apps.users.serializers.CustomLoginSerializer",
 }
 
 
@@ -217,7 +216,8 @@ SIMPLE_JWT = {
 
 SITE_ID = 1
 
-ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_AUTHENTICATION_METHOD = 'username'
+ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 
