@@ -212,6 +212,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'JWT_AUTH_HTTPONLY': True,
+    'JWT_AUTH_SAMESITE': 'None', 
+    'JWT_AUTH_SECURE': True, 
 }
 
 SITE_ID = 1
