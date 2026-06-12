@@ -204,6 +204,7 @@ REST_AUTH = {
     'JWT_AUTH_REFRESH_COOKIE': 'refresh',
     'JWT_AUTH_HTTPONLY': True,
     "USER_DETAILS_SERIALIZER": "apps.users.serializers.CustomUserDetailsSerializer", # Optional: Custom serializer to include additional fields
+    "LOGIN_SERIALIZER": "apps.users.serializers.CustomLoginSerializer",
 }
 
 
