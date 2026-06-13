@@ -203,18 +203,27 @@ REST_AUTH = {
     'JWT_AUTH_COOKIE': 'access',
     'JWT_AUTH_REFRESH_COOKIE': 'refresh',
     'JWT_AUTH_HTTPONLY': True,
+    "JWT_AUTH_SAMESITE": "None",
+    "JWT_AUTH_SECURE": True,
     "USER_DETAILS_SERIALIZER": "apps.users.serializers.CustomUserDetailsSerializer", # Optional: Custom serializer to include additional fields
 }
 
+REST_USE_JWT = True
 
 SIMPLE_JWT = {
     # 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
-    'JWT_AUTH_HTTPONLY': True,
-    'JWT_AUTH_SAMESITE': 'None', 
-    'JWT_AUTH_SECURE': True, 
 }
+
+# Cookie settings for cross-site frontend/backend
+SESSION_COOKIE_SAMESITE = "None"
+CSRF_COOKIE_SAMESITE = "None"
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+CSRF_COOKIE_HTTPONLY = False
 
 SITE_ID = 1
 
