@@ -203,8 +203,8 @@ REST_AUTH = {
     'JWT_AUTH_COOKIE': 'access',
     'JWT_AUTH_REFRESH_COOKIE': 'refresh',
     'JWT_AUTH_HTTPONLY': True,
-    "JWT_AUTH_SAMESITE": "None",
-    "JWT_AUTH_SECURE": True,
+    'JWT_AUTH_SAMESITE': 'Lax' if DEBUG else 'None',
+    'JWT_AUTH_SECURE': not DEBUG,
     "USER_DETAILS_SERIALIZER": "apps.users.serializers.CustomUserDetailsSerializer", # Optional: Custom serializer to include additional fields
 }
 
@@ -217,11 +217,16 @@ SIMPLE_JWT = {
 }
 
 # Cookie settings for cross-site frontend/backend
-SESSION_COOKIE_SAMESITE = "None"
-CSRF_COOKIE_SAMESITE = "None"
-
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+if DEBUG:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = "Lax"
+else:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = "None"
+    CSRF_COOKIE_SAMESITE = "None"
 
 CSRF_COOKIE_HTTPONLY = False
 
