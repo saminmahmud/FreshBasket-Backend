@@ -31,7 +31,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            'id', 'user', 'full_name', 'phone', 'address', 'city', 'postal_code',
+            'id', 'user', 'full_name', 'phone', 'address', 'city', 'postal_code', 'note',
             'delivery_partner', 'payment_method', 'order_status', 'subtotal', 'total_price', 'tracking_code',
             'is_paid', 'otp', 'is_otp_verified', 'delivery_area', 'delivery_charge',
             'created_at', 'items'
@@ -98,7 +98,7 @@ class OrderTrackingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            'id', 'full_name', 'phone', 'address', 'city', 'postal_code',
+            'id', 'full_name', 'phone', 'address', 'city', 'postal_code', 'note',
             'delivery_partner', 'payment_method', 'order_status',
             'transaction_id', 'tracking_code',
             'created_at', 'subtotal', 'delivery_charge', 'total_price',
