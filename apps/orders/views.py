@@ -144,9 +144,9 @@ def Purchase(request, order_id, tran_id):
         order_qs.is_paid = True
         order_qs.transaction_id = tran_id
         order_qs.save()
-        return HttpResponseRedirect(f'{FRONTEND_URL}/payment?status=success&order_id={order_id}')
+        return HttpResponseRedirect(f'{FRONTEND_URL}/checkout?status=success&order_id={order_id}')
 
-    return HttpResponseRedirect(f'{FRONTEND_URL}/payment?status=failed')
+    return HttpResponseRedirect(f'{FRONTEND_URL}/checkout?status=failed')
 
 
 @extend_schema(request=None, responses={302: None})
@@ -158,9 +158,9 @@ def Cancle_or_Fail(request, order_id):
     
     if order_qs:
         order_qs.delete() 
-        return HttpResponseRedirect(f'{FRONTEND_URL}/payment?status=failed')
+        return HttpResponseRedirect(f'{FRONTEND_URL}/checkout?status=failed')
 
-    return HttpResponseRedirect(f'{FRONTEND_URL}/payment?status=failed')
+    return HttpResponseRedirect(f'{FRONTEND_URL}/checkout?status=failed')
 
 
 class OrderTrackingAPIView(APIView):
