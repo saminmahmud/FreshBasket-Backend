@@ -25,6 +25,9 @@ class AddressViewSet(viewsets.ModelViewSet):
         if Address.objects.filter(user=self.request.user).exists():
             raise ValidationError("You already have an address")
         serializer.save(user=self.request.user)
+        
+    def get_object(self):
+        return Address.objects.get(user=self.request.user)
 
     def get_queryset(self):
         if getattr(self, 'swagger_fake_view', False):
