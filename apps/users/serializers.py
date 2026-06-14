@@ -18,6 +18,7 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField(read_only=True)
+    image = serializers.ImageField(write_only=True, required=False)
 
     class Meta:
         model = User
@@ -26,8 +27,10 @@ class UserSerializer(serializers.ModelSerializer):
             "username",
             "email",
             "avatar",
+            "image",
             "role"
         ]
+    read_only_fields = ['role', 'username', 'avatar', 'email']
 
     @extend_schema_field(serializers.CharField)
     def get_avatar(self, user):
