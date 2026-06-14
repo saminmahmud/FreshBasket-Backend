@@ -76,9 +76,14 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class DeliveryChargeSerializer(serializers.ModelSerializer):
+    delivery_area_display = serializers.CharField(
+        source='get_delivery_area_display',
+        read_only=True
+    )
+
     class Meta:
         model = DeliveryCharge
-        fields = ['id', 'delivery_area', 'charge_amount']
+        fields = ['id', 'delivery_area', 'delivery_area_display', 'charge_amount']
 
 
 class OTPVerificationSerializer(serializers.Serializer):
