@@ -2,7 +2,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from .models import Order, OrderItem, DeliveryCharge, Address
 from apps.users.serializers import UserMiniSerializer
-from .utils import generate_transaction_id
+from .utils import generate_track_id
 from apps.products.models import Product
 
 
@@ -51,7 +51,7 @@ class OrderSerializer(serializers.ModelSerializer):
             subtotal += price
 
         order.subtotal = subtotal
-        order.tracking_code = f"TRK{generate_transaction_id()}"
+        order.tracking_code = generate_track_id()
 
         area = validated_data.get('delivery_area')
         delivery_charge = DeliveryCharge.objects.filter(delivery_area=area).first()
