@@ -39,6 +39,28 @@ class Address(models.Model):
             models.Index(fields=['user']),
         ]
 
+class DeliveryPartnerProfile(models.Model):
+    VEHICLE_TYPE_CHOICES = [
+        ('bike', 'Bike'),
+        ('car', 'Car'),
+        ('cycle', 'Cycle'),
+        ('other', 'Other'),
+    ]
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='delivery_partner_profile')
+    vehicle_type = models.CharField(max_length=20, choices=VEHICLE_TYPE_CHOICES, default='other', null=True, blank=True)
+    vehicle_number = models.CharField(max_length=50, null=True, blank=True)
+    full_name = models.CharField(max_length=255, null=True, blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.vehicle_type} ({self.vehicle_number})"
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['user']),
+        ]
+
 
 class Order(models.Model):
     PAYMENT_METHOD_CHOICES = [
@@ -65,7 +87,7 @@ class Order(models.Model):
     note = models.TextField(null=True, blank=True)
 
     delivery_partner = models.ForeignKey(
-        User,
+        DeliveryPartnerProfile,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,

@@ -14,7 +14,6 @@ class CustomUser(AbstractUser):
     ]
     image = ResizedImageField(size=[300, 300], upload_to='avatars/', null=True, blank=True, quality=75, storage=MediaCloudinaryStorage())
     role = models.CharField(max_length=20, choices=roles, default='customer')
-    phone = models.CharField(max_length=11, null=True, blank=True)
 
     def __str__(self):
         return self.username

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Address, DeliveryCharge, Order, OrderItem
+from .models import Address, DeliveryCharge, Order, OrderItem, DeliveryPartnerProfile
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
@@ -23,3 +23,8 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'full_name', 'phone', 'city', 'postal_code')
     list_filter = ('order_status', 'payment_method')
     inlines = [OrderItemInline]
+
+@admin.register(DeliveryPartnerProfile)
+class DeliveryPartnerProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'full_name', 'phone', 'vehicle_type')
+    search_fields = ('user__username')
