@@ -24,7 +24,7 @@ class CustomUser(AbstractUser):
         try:
             avatar = self.image.url
         except:
-            avatar = f"{settings.FRONTEND_URL}{static('avatars/default_pic.jpg')}"
+            avatar = f"{settings.BACKEND_URL}{static('avatars/default_pic.jpg')}"
         return avatar
     
     class Meta:
