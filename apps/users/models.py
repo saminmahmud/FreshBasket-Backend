@@ -3,6 +3,7 @@ from django.db import models
 from django_resized import ResizedImageField
 from django.contrib.auth.models import AbstractUser
 from django.templatetags.static import static
+from django.conf import settings
 
 
 class CustomUser(AbstractUser):
@@ -23,7 +24,7 @@ class CustomUser(AbstractUser):
         try:
             avatar = self.image.url
         except:
-            avatar = static('avatars/default_pic.jpg')
+            avatar = f"{settings.FRONTEND_URL}{static('avatars/default_pic.jpg')}"
         return avatar
     
     class Meta:
