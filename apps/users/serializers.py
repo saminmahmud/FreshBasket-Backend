@@ -36,10 +36,10 @@ class UserSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.CharField)
     def get_avatar(self, user):
         request = self.context.get('request')
-        if request:
-            return request.build_absolute_uri(user.avatar)
-        else:
-            return user.avatar
+        if request and user.image:
+            return request.build_absolute_uri(user.image.url)
+
+        return user.avatar
         
 
 class UserMiniSerializer(serializers.ModelSerializer):
@@ -56,8 +56,8 @@ class UserMiniSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.CharField)
     def get_avatar(self, user):
         request = self.context.get('request')
-        if request:
-            return request.build_absolute_uri(user.avatar)
-        else:
-            return user.avatar
+        if request and user.image:
+            return request.build_absolute_uri(user.image.url)
+
+        return user.avatar
         
