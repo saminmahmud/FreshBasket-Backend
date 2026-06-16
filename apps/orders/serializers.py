@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from .models import Order, OrderItem, DeliveryCharge, Address
-from apps.users.serializers import UserMiniSerializer
+from apps.users.serializers import UserMiniSerializer, UserSerializer
 from .utils import generate_track_id
 from apps.products.models import Product
 
@@ -94,6 +94,7 @@ class OTPVerificationSerializer(serializers.Serializer):
 class OrderTrackingSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
     items = OrderItemSerializer(many=True, read_only=True)
+    delivery_partner = UserSerializer(read_only=True)
 
     class Meta:
         model = Order
