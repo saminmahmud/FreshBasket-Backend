@@ -16,4 +16,5 @@ urlpatterns = [
     path('orders/payment/purchase/<int:order_id>/<str:tran_id>/', Purchase, name='purchase'),
     path('orders/payment/cancle-or-fail/<int:order_id>/', Cancle_or_Fail, name='cancle-or-fail'),
     path('orders/tracking/<str:tracking_code>/', OrderTrackingAPIView.as_view(), name='order-tracking'),
+    path('admin-dashboard/', AdminDashboardAPIView.as_view(), name='admin-dashboard'),
 ]

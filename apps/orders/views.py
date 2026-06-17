@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema
 from rest_framework.response import Response
-from .serializers import OrderSerializer, AddressSerializer, DeliveryChargeSerializer, OTPVerificationSerializer, OrderTrackingSerializer
+from .serializers import AdminDashboardSerializer, OrderSerializer, AddressSerializer, DeliveryChargeSerializer, OTPVerificationSerializer, OrderTrackingSerializer
 from .models import Order, Address, DeliveryCharge
 from rest_framework import status, viewsets, permissions
 from rest_framework.views import APIView
@@ -13,6 +13,10 @@ from .utils import create_sslcommerz_session
 from rest_framework.permissions import AllowAny
 from django.conf import settings
 from rest_framework.validators import ValidationError
+from django.contrib.auth import get_user_model
+from apps.products.models import Product
+
+User = get_user_model()
 
 FRONTEND_URL = settings.FRONTEND_URL
 
@@ -176,4 +180,22 @@ class OrderTrackingAPIView(APIView):
             return Response({"message": "No order found with this tracking code"}, status=status.HTTP_404_NOT_FOUND)
     
         
-    
+class AdminDashboardAPIView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        total_orders = Order.objects.count()
+        total_users = User.objects.count()
+        total_products = Product.objects.count()
+        total_out_of_stock_products = Product.objects.filter(stock=0).count()
+        recent_orders = Order.objects.order_by('-created_at')[:8]
+        
+        serializer = AdminDashboardSerializer({
+            'total_orders': total_orders,
+            'total_users': total_users,
+            'total_products': total_products,
+            'total_out_of_stock_products': total_out_of_stock_products,
+            'recent_orders': recent_orders
+        })
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)

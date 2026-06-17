@@ -123,4 +123,14 @@ class OrderTrackingSerializer(serializers.ModelSerializer):
     def get_total_price(self, obj):
         return obj.total_price
     
+
+class AdminDashboardSerializer(serializers.Serializer):
+    total_orders = serializers.IntegerField()
+    total_users = serializers.IntegerField()
+    total_products = serializers.IntegerField()
+    total_out_of_stock_products = serializers.IntegerField()
+    recent_orders = OrderSerializer(many=True, read_only=True)
     
+    
+    
+     
