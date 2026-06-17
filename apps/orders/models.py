@@ -54,7 +54,7 @@ class DeliveryPartnerProfile(models.Model):
     address = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.vehicle_type} ({self.vehicle_number})"
+        return f"{self.user.username}"
     
     class Meta:
         indexes = [

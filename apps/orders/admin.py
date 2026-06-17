@@ -24,7 +24,8 @@ class OrderAdmin(admin.ModelAdmin):
     list_filter = ('order_status', 'payment_method')
     inlines = [OrderItemInline]
 
+
 @admin.register(DeliveryPartnerProfile)
 class DeliveryPartnerProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'full_name', 'phone', 'vehicle_type')
-    search_fields = ('user__username')
+    search_fields = ('user__username',)
