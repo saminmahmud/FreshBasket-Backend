@@ -51,15 +51,31 @@ class ReviewVoteSerializer(serializers.ModelSerializer):
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all()
+    )
     category = CategoryForProductSerializer(read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     total_reviews = serializers.IntegerField(read_only=True)
     final_discount = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
     final_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    discount = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        required=False,
+        allow_null=True
+    )
+    flash_sale_discount = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'image', 'category', 'price', 'final_price', 'final_discount', 'stock', 'unit', 'unit_quantity', 'is_organic', 'is_flash_sale', 'average_rating', 'total_reviews']
+        fields = ['id', 'name', 'description', 'image', 'category', 'price', 'final_price', 'final_discount', 'stock', 'unit', 'unit_quantity', 'is_organic', 'is_flash_sale', 'average_rating', 'total_reviews', 'discount', 'flash_sale_discount', 'category_id']
+        
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
