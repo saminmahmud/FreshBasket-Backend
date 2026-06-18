@@ -22,12 +22,19 @@ class OrderItemSerializer(serializers.ModelSerializer):
         read_only_fields = ['price']
 
 
+class DeliveryPartnerProfileMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeliveryPartnerProfile
+        fields = ['id', 'full_name']
+        read_only_fields = ['id', 'full_name']
+
+
 class OrderSerializer(serializers.ModelSerializer):
     user = UserMiniSerializer(read_only=True)
     items = OrderItemSerializer(many=True)
     delivery_charge = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     total_price = serializers.SerializerMethodField()
-
+    delivery_partner = DeliveryPartnerProfileMiniSerializer(read_only=True)
     class Meta:
         model = Order
         fields = [
