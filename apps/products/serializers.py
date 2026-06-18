@@ -52,7 +52,8 @@ class ReviewVoteSerializer(serializers.ModelSerializer):
 
 class ProductListSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all()
+        queryset=Category.objects.all(),
+        source="category" 
     )
     category = CategoryForProductSerializer(read_only=True)
     average_rating = serializers.FloatField(read_only=True)

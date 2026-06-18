@@ -8,6 +8,7 @@ from .models import Category, Product, Review, ReviewVote
 from .serializers import CategorySerializer, ProductDetailSerializer, ProductListSerializer, ReviewSerializer, ReviewCreateSerializer, ReviewVoteSerializer
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -68,6 +69,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     filterset_class = ProductFilter
     search_fields = ['name']
     ordering_fields = ['price', 'created_at']
+    parser_classes = [MultiPartParser, FormParser, JSONParser] 
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
