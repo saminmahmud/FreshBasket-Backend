@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import generics, permissions, viewsets
 from django.contrib.auth import get_user_model
 from .permissions import IsEmailVerified  
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserWithProfileSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import UserFilter
 
@@ -30,7 +30,7 @@ class MeView(generics.RetrieveUpdateAPIView):
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserWithProfileSerializer
     permission_classes = [permissions.IsAdminUser]
     filter_backends = [DjangoFilterBackend]
     filterset_class = UserFilter
