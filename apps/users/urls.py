@@ -10,4 +10,5 @@ router.register('users', UserViewSet, basename='user')
 urlpatterns = [
     path("users/me/", MeView.as_view(), name="me"),
     path("", include(router.urls)),
+    path("users/delivery-partners/create/", CreateDeliveryPartnerView.as_view(), name="create-delivery-partner"),
 ]

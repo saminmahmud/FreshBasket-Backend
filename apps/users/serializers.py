@@ -6,6 +6,7 @@ from allauth.account.models import EmailAddress
 from drf_spectacular.utils import extend_schema_field
 from dj_rest_auth.serializers import LoginSerializer
 from apps.orders.models import Address, DeliveryPartnerProfile
+from allauth.account.models import EmailAddress
 
 User = get_user_model()
 
@@ -114,3 +115,38 @@ class UserWithProfileSerializer(serializers.ModelSerializer):
             except DeliveryPartnerProfile.DoesNotExist:
                 return None
         return None
+    
+
+class CreateDeliveryPartnerSerializer(serializers.ModelSerializer):
+    vehicle_type = serializers.ChoiceField(choices=DeliveryPartnerProfile.VEHICLE_TYPE_CHOICES, required=False)
+    vehicle_number = serializers.CharField(required=False)
+    full_name = serializers.CharField(required=False)
+    phone = serializers.CharField(required=False)
+    
+    class Meta:
+        model = User
+        fields = ['email', 'password', 'vehicle_type', 'vehicle_number', 'full_name', 'phone']
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username= validated_data['email'].split('@')[0],
+            email=validated_data['email'],
+            password= validated_data['password'],
+            role='delivery_partner'
+        )
+       
+        EmailAddress.objects.create(
+            user=user,
+            email=validated_data['email'],
+            verified=True,
+            primary=True
+        )
+        
+        profile = user.delivery_partner_profile
+        profile.vehicle_type = validated_data.get('vehicle_type', 'other')
+        profile.vehicle_number = validated_data.get('vehicle_number', '')
+        profile.full_name = validated_data.get('full_name', '')
+        profile.phone = validated_data.get('phone', '')
+        profile.save()
+        
+        return user

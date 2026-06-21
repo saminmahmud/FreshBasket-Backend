@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework import generics, permissions, viewsets
 from django.contrib.auth import get_user_model
 from .permissions import IsEmailVerified  
-from .serializers import UserSerializer, UserWithProfileSerializer
+from .serializers import CreateDeliveryPartnerSerializer, UserSerializer, UserWithProfileSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import UserFilter
 
@@ -34,3 +34,9 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
     filter_backends = [DjangoFilterBackend]
     filterset_class = UserFilter
+
+
+class CreateDeliveryPartnerView(generics.CreateAPIView):
+    serializer_class = CreateDeliveryPartnerSerializer
+    permission_classes = [permissions.IsAdminUser]
+    
