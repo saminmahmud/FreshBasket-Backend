@@ -89,8 +89,7 @@ class UserWithProfileSerializer(serializers.ModelSerializer):
 
         return user.avatar
     
-    def get_is_active(self, obj):
-        user = obj.user
+    def get_is_active(self, user):
         email_address = EmailAddress.objects.filter(user=user, email=user.email).first()
         if email_address:
             return email_address.verified
