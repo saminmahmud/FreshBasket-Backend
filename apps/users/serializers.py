@@ -114,6 +114,7 @@ class UserWithProfileSerializer(serializers.ModelSerializer):
                 profile = user.delivery_partner_profile
                 return {
                     'id': profile.id,
+                    'user_id': profile.user_id,
                     'full_name': profile.full_name,
                     'phone': profile.phone,
                     'address': profile.address,
@@ -159,9 +160,3 @@ class CreateDeliveryPartnerSerializer(serializers.ModelSerializer):
         
         return user
     
-    
-class UpdateDeliveryPartnerActiveStatusSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = EmailAddress
-        fields = ['verified']
