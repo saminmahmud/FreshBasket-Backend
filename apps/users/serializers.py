@@ -66,7 +66,8 @@ class UserMiniSerializer(serializers.ModelSerializer):
 class UserWithProfileSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField(read_only=True)
     profile = serializers.SerializerMethodField(read_only=True)
-
+    is_active = serializers.SerializerMethodField()
+    
     class Meta:
         model = User
         fields = [
@@ -76,8 +77,9 @@ class UserWithProfileSerializer(serializers.ModelSerializer):
             "avatar",
             "role",
             "profile",
+            "is_active",
         ]
-    read_only_fields = ['role', 'username', 'avatar', 'email']
+    read_only_fields = ['role', 'username', 'avatar', 'email', 'is_active']
 
     @extend_schema_field(serializers.CharField)
     def get_avatar(self, user):
@@ -86,6 +88,13 @@ class UserWithProfileSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(user.image.url)
 
         return user.avatar
+    
+    def get_is_active(self, obj):
+        user = obj.user
+        email_address = EmailAddress.objects.filter(user=user, email=user.email).first()
+        if email_address:
+            return email_address.verified
+        return False
         
     def get_profile(self, user):
         if user.role == 'customer' or user.role == 'admin':
