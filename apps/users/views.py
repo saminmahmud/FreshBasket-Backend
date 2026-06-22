@@ -2,9 +2,10 @@ from rest_framework.response import Response
 from rest_framework import generics, permissions, viewsets
 from django.contrib.auth import get_user_model
 from .permissions import IsEmailVerified  
-from .serializers import CreateDeliveryPartnerSerializer, UserSerializer, UserWithProfileSerializer
+from .serializers import CreateDeliveryPartnerSerializer, UpdateDeliveryPartnerActiveStatusSerializer, UserSerializer, UserWithProfileSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import UserFilter
+from allauth.account.models import EmailAddress
 
 User = get_user_model()
 
@@ -40,3 +41,9 @@ class CreateDeliveryPartnerView(generics.CreateAPIView):
     serializer_class = CreateDeliveryPartnerSerializer
     permission_classes = [permissions.IsAdminUser]
     
+
+class UpdateDeliveryPartnerActiveStatusView(generics.UpdateAPIView):
+    serializer_class = UpdateDeliveryPartnerActiveStatusSerializer
+    permission_classes = [permissions.IsAdminUser]
+    queryset = EmailAddress.objects.filter(user__role='delivery_partner')
+    lookup_field = 'pk'

@@ -150,3 +150,10 @@ class CreateDeliveryPartnerSerializer(serializers.ModelSerializer):
         profile.save()
         
         return user
+    
+    
+class UpdateDeliveryPartnerActiveStatusSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = EmailAddress
+        fields = ['verified']

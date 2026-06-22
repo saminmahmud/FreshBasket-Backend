@@ -4,6 +4,7 @@ from .models import Order, OrderItem, DeliveryCharge, Address, DeliveryPartnerPr
 from apps.users.serializers import UserMiniSerializer, UserSerializer
 from .utils import generate_track_id
 from apps.products.models import Product
+from allauth.account.models import EmailAddress
 
 
 class ProductForOrderSerializer(serializers.ModelSerializer):
@@ -100,11 +101,18 @@ class OTPVerificationSerializer(serializers.Serializer):
 
 class DeliveryPartnerProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-
+    is_active = serializers.SerializerMethodField()
     class Meta:
         model = DeliveryPartnerProfile
-        fields = ['id', 'user', 'vehicle_type', 'vehicle_number', 'full_name', 'phone']
+        fields = ['id', 'user', 'vehicle_type', 'vehicle_number', 'full_name', 'phone', 'is_active']
         read_only_fields = ['user']
+        
+    def get_is_active(self, obj):
+        user = obj.user
+        email_address = EmailAddress.objects.filter(user=user, email=user.email).first()
+        if email_address:
+            return email_address.verified
+        return False
 
 
 class OrderTrackingSerializer(serializers.ModelSerializer):
