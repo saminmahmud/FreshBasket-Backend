@@ -42,9 +42,9 @@ class OrderSerializer(serializers.ModelSerializer):
             'id', 'user', 'full_name', 'phone', 'address', 'city', 'postal_code', 'note',
             'delivery_partner', 'payment_method', 'order_status', 'subtotal', 'total_price', 'tracking_code',
             'is_paid', 'otp', 'is_otp_verified', 'delivery_area', 'delivery_charge',
-            'created_at', 'items'
+            'created_at', 'items', 'updated_at'
         ]
-        read_only_fields = ['user', 'subtotal', 'total_price', 'is_paid', 'otp', 'is_otp_verified', 'delivery_charge', 'created_at']
+        read_only_fields = ['user', 'subtotal', 'total_price', 'is_paid', 'otp', 'is_otp_verified', 'delivery_charge', 'created_at', 'updated_at']
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
@@ -125,12 +125,12 @@ class OrderTrackingSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'full_name', 'phone', 'address', 'city', 'postal_code', 'note',
             'delivery_partner', 'payment_method', 'order_status',
-            'transaction_id', 'tracking_code',
+            'transaction_id', 'tracking_code', 'updated_at',
             'created_at', 'subtotal', 'delivery_charge', 'total_price',
             'is_otp_verified', 'otp', 'delivery_area', 'items'
         ]
         read_only_fields = [
-            'id', 'transaction_id', 'created_at', 'tracking_code',
+            'id', 'transaction_id', 'created_at', 'updated_at', 'tracking_code',
             'subtotal', 'delivery_charge', 'total_price', 'items'
         ]
 
