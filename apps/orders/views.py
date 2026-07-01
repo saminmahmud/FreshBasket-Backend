@@ -81,8 +81,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Order.objects.none()
         if user.is_staff:
             return Order.objects.all().select_related('user', 'delivery_partner').prefetch_related('items')
-        elif user.is_delivery_partner:
-            return Order.objects.filter(delivery_partner=user).select_related('user', 'delivery_partner').prefetch_related('items')
+        elif user.role == 'delivery_partner':
+            return Order.objects.filter(delivery_partner=user.delivery_partner_profile).select_related('user', 'delivery_partner').prefetch_related('items')
         else:
             return Order.objects.filter(user=user).select_related('user', 'delivery_partner').prefetch_related('items')
 
@@ -99,7 +99,7 @@ class OTPVerificationAPIView(APIView):
         otp = serializer.validated_data['otp']
 
         try:
-            order = Order.objects.get(id=order_id, delivery_partner=request.user)
+            order = Order.objects.get(id=order_id, delivery_partner=request.user.delivery_partner_profile)
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=404)
 
