@@ -42,7 +42,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'id', 'user', 'full_name', 'phone', 'address', 'city', 'postal_code', 'note',
             'delivery_partner', 'payment_method', 'order_status', 'subtotal', 'total_price', 'tracking_code',
             'is_paid', 'otp', 'is_otp_verified', 'delivery_area', 'delivery_charge',
-            'created_at', 'items', 'updated_at'
+            'created_at', 'items', 'updated_at', 'latitude', 'longitude'
         ]
         read_only_fields = ['user', 'subtotal', 'total_price', 'is_paid', 'otp', 'is_otp_verified', 'delivery_charge', 'created_at', 'updated_at']
 
@@ -127,7 +127,7 @@ class OrderTrackingSerializer(serializers.ModelSerializer):
             'delivery_partner', 'payment_method', 'order_status',
             'transaction_id', 'tracking_code', 'updated_at',
             'created_at', 'subtotal', 'delivery_charge', 'total_price',
-            'is_otp_verified', 'otp', 'delivery_area', 'items'
+            'is_otp_verified', 'otp', 'delivery_area', 'items', 'latitude', 'longitude'
         ]
         read_only_fields = [
             'id', 'transaction_id', 'created_at', 'updated_at', 'tracking_code',
