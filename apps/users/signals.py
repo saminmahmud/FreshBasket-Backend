@@ -7,8 +7,16 @@ User = get_user_model()
         
 @receiver(pre_save, sender=User)
 def user_presave(sender, instance, **kwargs):
-    if instance.username:
-        instance.username = instance.username.lower()
+    if not instance.username:
+        base = instance.email.split("@")[0].lower()
+        username = base
+        count = 1
+
+        while User.objects.filter(username=username).exclude(pk=instance.pk).exists():
+            username = f"{base}{count}"
+            count += 1
+
+        instance.username = username
 
     if instance.is_superuser:
         instance.role = 'admin'    

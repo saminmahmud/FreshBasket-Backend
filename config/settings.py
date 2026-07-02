@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'dj_rest_auth',
     'dj_rest_auth.registration',
 
     # apps
@@ -206,6 +207,7 @@ REST_AUTH = {
     'JWT_AUTH_SAMESITE': 'Lax' if DEBUG else 'None',
     'JWT_AUTH_SECURE': not DEBUG,
     "USER_DETAILS_SERIALIZER": "apps.users.serializers.CustomUserDetailsSerializer", # Optional: Custom serializer to include additional fields
+    "LOGIN_SERIALIZER": "apps.users.serializers.CustomLoginSerializer",
 }
 
 REST_USE_JWT = True
@@ -232,10 +234,7 @@ CSRF_COOKIE_HTTPONLY = False
 
 SITE_ID = 1
 
-ACCOUNT_AUTHENTICATION_METHOD = 'username'
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory' 
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True # No need to sent POST request to confirmation link
@@ -243,8 +242,8 @@ EMAIL_SUBJECT_PREFIX = ""
 
 FRONTEND_URL = config("FRONTEND_URL", default="http://localhost:3000")
 
-ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = f"{FRONTEND_URL}/login"
-ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = f"{FRONTEND_URL}/login"
+ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = f"{FRONTEND_URL}/login?email_confirmed=true"
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = f"{FRONTEND_URL}/login?email_confirmed=true"
 
 
 SPECTACULAR_SETTINGS = {

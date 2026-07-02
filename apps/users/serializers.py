@@ -160,3 +160,51 @@ class CreateDeliveryPartnerSerializer(serializers.ModelSerializer):
         
         return user
     
+    
+# class CustomLoginSerializer(LoginSerializer):
+#     def validate(self, attrs):
+#         login = attrs.get('login')
+#         password = attrs.get('password')
+        
+#         # in login can be either username or email, so we need to check if it's an email or username 
+#         if '@' in login:
+#             user = authenticate(self.context['request'], email=login, password=password)
+#         else:
+#             user = authenticate(self.context['request'], username=login, password=password)
+
+#         if not user:
+#             raise serializers.ValidationError("Invalid login credentials")
+
+#         attrs['user'] = user
+#         return attrs
+
+class CustomLoginSerializer(LoginSerializer):
+    login = serializers.CharField(required=True)
+    password = serializers.CharField(style={"input_type": "password"})
+    
+    def validate(self, attrs):
+        login = attrs.get("login")
+        password = attrs.get("password")
+
+        if login and password:
+            try:
+                user = User.objects.get(email__iexact=login)
+                username = user.username
+            except User.DoesNotExist:
+                username = login
+
+            user = authenticate(
+                request=self.context.get("request"),
+                username=username,
+                password=password,
+            )
+
+            if not user:
+                raise serializers.ValidationError(
+                    "Unable to log in with provided credentials."
+                )
+
+            attrs["user"] = user
+            return attrs
+
+        raise serializers.ValidationError("Must include login and password.")
