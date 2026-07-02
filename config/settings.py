@@ -234,7 +234,7 @@ CSRF_COOKIE_HTTPONLY = False
 
 SITE_ID = 1
 
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username', 'password1*', 'password2*']
 
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory' 
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True # No need to sent POST request to confirmation link
