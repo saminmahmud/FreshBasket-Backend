@@ -36,11 +36,19 @@ class OrderSerializer(serializers.ModelSerializer):
     delivery_charge = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     total_price = serializers.SerializerMethodField()
     delivery_partner = DeliveryPartnerProfileMiniSerializer(read_only=True)
+    delivery_partner_id = serializers.PrimaryKeyRelatedField(
+        queryset=DeliveryPartnerProfile.objects.all(),
+        source="delivery_partner",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+    
     class Meta:
         model = Order
         fields = [
             'id', 'user', 'full_name', 'phone', 'address', 'city', 'postal_code', 'note',
-            'delivery_partner', 'payment_method', 'order_status', 'subtotal', 'total_price', 'tracking_code',
+            'delivery_partner', 'delivery_partner_id', 'payment_method', 'order_status', 'subtotal', 'total_price', 'tracking_code',
             'is_paid', 'otp', 'is_otp_verified', 'delivery_area', 'delivery_charge',
             'created_at', 'items', 'updated_at', 'latitude', 'longitude'
         ]
