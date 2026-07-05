@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Address, DeliveryCharge, Order, OrderItem, DeliveryPartnerProfile
-
+from .models import Address, DeliveryCharge, Order, OrderItem, DeliveryPartnerProfile, OrderLiveLocation
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
     list_display = ('user', 'full_name', 'phone', 'address', 'city', 'postal_code')
@@ -29,3 +28,8 @@ class OrderAdmin(admin.ModelAdmin):
 class DeliveryPartnerProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'full_name', 'phone', 'vehicle_type')
     search_fields = ('user__username',)
+    
+@admin.register(OrderLiveLocation)
+class OrderLiveLocationAdmin(admin.ModelAdmin):
+    list_display = ('order', 'delivery_partner', 'latitude', 'longitude', 'updated_at')
+    search_fields = ('order__id', 'delivery_partner__user__username')

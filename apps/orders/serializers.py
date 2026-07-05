@@ -1,11 +1,12 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
-from .models import Order, OrderItem, DeliveryCharge, Address, DeliveryPartnerProfile
+from .models import Order, OrderItem, DeliveryCharge, Address, DeliveryPartnerProfile, OrderLiveLocation
 from apps.users.serializers import UserMiniSerializer, UserSerializer
 from .utils import generate_track_id
 from apps.products.models import Product
 from allauth.account.models import EmailAddress
-
+from datetime import timedelta
+from django.utils import timezone
 
 class ProductForOrderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -127,6 +128,11 @@ class OrderTrackingSerializer(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
     items = OrderItemSerializer(many=True, read_only=True)
     delivery_partner = DeliveryPartnerProfileSerializer(read_only=True)
+    
+    rider_latitude = serializers.SerializerMethodField()
+    rider_longitude = serializers.SerializerMethodField()
+    rider_last_updated = serializers.SerializerMethodField()
+    rider_is_online = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -135,7 +141,8 @@ class OrderTrackingSerializer(serializers.ModelSerializer):
             'delivery_partner', 'payment_method', 'order_status',
             'transaction_id', 'tracking_code', 'updated_at',
             'created_at', 'subtotal', 'delivery_charge', 'total_price',
-            'is_otp_verified', 'otp', 'delivery_area', 'items', 'latitude', 'longitude'
+            'is_otp_verified', 'otp', 'delivery_area', 'items', 'latitude', 'longitude', 
+            'rider_latitude', 'rider_longitude', 'rider_last_updated', 'rider_is_online'
         ]
         read_only_fields = [
             'id', 'transaction_id', 'created_at', 'updated_at', 'tracking_code',
@@ -146,6 +153,29 @@ class OrderTrackingSerializer(serializers.ModelSerializer):
     def get_total_price(self, obj):
         return obj.total_price
     
+    def get_rider_latitude(self, obj):
+        if hasattr(obj, "live_location"):
+            return obj.live_location.latitude
+        return None
+
+    def get_rider_longitude(self, obj):
+        if hasattr(obj, "live_location"):
+            return obj.live_location.longitude
+        return None
+
+    def get_rider_last_updated(self, obj):
+        if hasattr(obj, "live_location"):
+            return obj.live_location.updated_at
+        return None
+    
+    def get_rider_is_online(self, obj):
+        live = getattr(obj, "live_location", None)
+        if not live:
+            return False
+        return (
+            timezone.now() - live.updated_at
+        ) < timedelta(seconds=15)
+    
 
 class AdminDashboardSerializer(serializers.Serializer):
     total_orders = serializers.IntegerField()
@@ -154,6 +184,20 @@ class AdminDashboardSerializer(serializers.Serializer):
     total_out_of_stock_products = serializers.IntegerField()
     recent_orders = OrderSerializer(many=True, read_only=True)
     
+
+class OrderLiveLocationSerializer(serializers.ModelSerializer):
     
+    class Meta:
+        model = OrderLiveLocation
+        fields = [
+            "order",
+            "latitude",
+            "longitude",
+            "updated_at",
+        ]
+
+        read_only_fields = [
+            "updated_at"
+        ]
     
      

@@ -140,3 +140,34 @@ class OrderItem(models.Model):
             models.Index(fields=['order']),
             models.Index(fields=['product']),
         ]
+
+
+from django.db import models
+
+
+class OrderLiveLocation(models.Model):
+    order = models.OneToOneField(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="live_location"
+    )
+    delivery_partner = models.ForeignKey(
+        DeliveryPartnerProfile,
+        on_delete=models.CASCADE,
+        related_name="live_locations"
+    )
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+        indexes = [
+            models.Index(fields=["order"]),
+            models.Index(fields=["delivery_partner"]),
+            models.Index(fields=["updated_at"]),
+        ]
+
+    def __str__(self):
+        return f"Order #{self.order.id}"

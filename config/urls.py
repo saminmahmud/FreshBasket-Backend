@@ -1,16 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
 from allauth.account.views import ConfirmEmailView
-from django.views.static import serve
-from django.conf import settings
-from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
-from config.exceptions import handler400, handler403, handler404, handler500
 
 
 urlpatterns = [
-    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
-    
     path('admin/', admin.site.urls),
 
     path("accounts/", include("allauth.urls")), 

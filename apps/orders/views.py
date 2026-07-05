@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema
 from rest_framework.response import Response
-from .serializers import AdminDashboardSerializer, OrderSerializer, AddressSerializer, DeliveryChargeSerializer, OTPVerificationSerializer, OrderTrackingSerializer
-from .models import Order, Address, DeliveryCharge
+from .serializers import AdminDashboardSerializer, OrderLiveLocationSerializer, OrderSerializer, AddressSerializer, DeliveryChargeSerializer, OTPVerificationSerializer, OrderTrackingSerializer
+from .models import Order, Address, DeliveryCharge, OrderLiveLocation
 from rest_framework import status, viewsets, permissions
 from rest_framework.views import APIView
 from apps.users.permissions import IsEmailVerified, IsDeliveryPartner
@@ -15,6 +15,8 @@ from django.conf import settings
 from rest_framework.validators import ValidationError
 from django.contrib.auth import get_user_model
 from apps.products.models import Product
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 User = get_user_model()
 
@@ -121,7 +123,7 @@ class OrderStatusUpdateAPIView(APIView):
             order = Order.objects.get(id=order_id)
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=404)
-
+        
         curr_status = order.order_status
         if curr_status == "assigned_to_delivery":
             order.order_status = "packed"
@@ -133,6 +135,24 @@ class OrderStatusUpdateAPIView(APIView):
             order.order_status = "delivered"
         else:
             return Response({'error': 'Invalid status transition'}, status=400)
+        order.save()
+        return Response({"order_id": order.id, "order_status": order.order_status}, status=200)
+
+
+class OrderStatusCancelAPIView(APIView):
+    permission_classes = [IsDeliveryPartner | permissions.IsAdminUser]
+    serializer_class = None
+
+    def patch(self, request, order_id):
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=404)
+        
+        if order.order_status in ["delivered", "cancelled"]:
+            return Response({'error': 'Cannot cancel a delivered or already cancelled order'}, status=400)
+        
+        order.order_status = "cancelled"
         order.save()
         return Response({"order_id": order.id, "order_status": order.order_status}, status=200)
 
@@ -169,12 +189,12 @@ def Cancle_or_Fail(request, order_id):
 
 class OrderTrackingAPIView(APIView):
     permission_classes = [permissions.AllowAny]
-    serializer_class = None
+    serializer_class = OrderTrackingSerializer
 
     def get(self, request, tracking_code):
         try:
-            order = Order.objects.get(tracking_code=tracking_code)
-            serializer = OrderTrackingSerializer(order)
+            order = Order.objects.select_related("delivery_partner").prefetch_related( "items", "items__product").get(tracking_code=tracking_code)
+            serializer = self.serializer_class(order)
             return Response({"data": serializer.data}, status=status.HTTP_200_OK)
         except Order.DoesNotExist:
             return Response({"message": "No order found with this tracking code"}, status=status.HTTP_404_NOT_FOUND)
@@ -199,3 +219,52 @@ class AdminDashboardAPIView(APIView):
         })
         
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class OrderLiveLocationUpdateAPIView(APIView):
+    permission_classes = [IsDeliveryPartner]
+    serializer_class = OrderLiveLocationSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(
+            data=request.data
+        )
+        serializer.is_valid(raise_exception=True)
+        partner = request.user.delivery_partner_profile
+
+        active_orders = Order.objects.filter(
+            delivery_partner=partner,
+            order_status="out_for_delivery"
+        )
+        
+        if not active_orders.exists():
+            return Response(
+                {"error": "No active order"},
+                status=400
+            )
+
+        for order in active_orders:
+            OrderLiveLocation.objects.update_or_create(
+                order=order,
+                defaults={
+                    "delivery_partner": partner,
+                    "latitude": serializer.validated_data["latitude"],
+                    "longitude": serializer.validated_data["longitude"]
+                }
+            )
+        
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f"order_{order.id}",
+                {
+                    "type": "location_update",
+                    "data": {
+                        "latitude": serializer.validated_data["latitude"],
+                        "longitude": serializer.validated_data["longitude"]
+                    }
+                }
+            )
+
+        return Response(
+            {"message": "Location Updated"}, status=200
+        )
