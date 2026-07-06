@@ -20,10 +20,17 @@ class CategoryForProductSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     user = UserMiniSerializer(read_only=True)
     helpful_votes = serializers.IntegerField(read_only=True)
+    is_created_helpful_vote = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Review
-        fields = ['id', 'user', 'rating', 'comment', 'created_at', 'helpful_votes']
+        fields = ['id', 'user', 'rating', 'comment', 'created_at', 'helpful_votes', 'is_created_helpful_vote']
+        
+    def get_is_created_helpful_vote(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return obj.votes.filter(user=user, is_helpful=True).exists()
+        return False
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
