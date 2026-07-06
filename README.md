@@ -1,5 +1,5 @@
 # FreshBasket Backend
-A scalable and production-ready grocery delivery e-commerce backend built with **Django** and **Django REST Framework (DRF)**. FreshBasket provides a complete API for managing role-based access control, products, orders, payments, delivery workflow, and reviews.
+A scalable, production-ready grocery delivery backend built with **Django**, **Django REST Framework**, and **Django Channels**. FreshBasket provides REST APIs together with real-time order tracking using WebSockets, enabling customers to monitor delivery partners live.
 
 ## Features
 
@@ -12,22 +12,30 @@ A scalable and production-ready grocery delivery e-commerce backend built with *
     *   Admins can confirm and assign orders to delivery partners or cancel them.
     *   Delivery partners can update order statuses (Packed, Out for Delivery, Delivered).
     *   OTP-based verification for confirming deliveries.
-*   **Order Tracking**: Customers can track their order status using a unique tracking code.
+*   **Order Tracking**: Customers can track order status and the delivery partner's live location using a unique tracking code.
 *   **Reviews & Ratings**: Authenticated users who have purchased a product can leave reviews and ratings.
 *   **Payment Integration**: Seamless payment processing with SSLCommerz.
 *   **Cloud Media Storage**: Uses Cloudinary for efficient storage and delivery of product images and user avatars.
 *   **API Documentation**: Auto-generated, interactive API documentation available with Swagger UI and Redoc.
-*   **Deployment Ready**: Configured for easy deployment on Vercel.
+*   **Deployment Ready**: Configured for easy deployment on Render.
+* **Real-time Order Tracking**
+    * Live delivery partner location updates using Django Channels, WebSockets, and Redis.
+    * Public order tracking using a unique tracking code.
+    * Delivery partners can start and stop live location sharing.
+    * Customers receive real-time rider location updates without refreshing the page.
 
 ## Technology Stack
 
-*   **Backend**: Django, Django REST Framework
+*   **Backend**: Django, Django REST Framework, Django Channels
+* **Real-time Communication**: WebSockets
+* **ASGI Server**: Uvicorn
+* **Channel Layer**: Redis
 *   **Database**: PostgreSQL
 *   **Authentication**: Django AllAuth, JWT, Dj-Rest-Auth
-*   **API Documentation**: Swagger UI, Redoc
 *   **Payment Gateway**: SSLCommerz
 *   **File Storage**: Cloudinary
-*   **Deployment**: Gunicorn, Whitenoise, Vercel
+*   **Deployment**: Whitenoise, Render
+*   **API Documentation**: Swagger UI, Redoc
 
 ## Project Structure
 
@@ -35,21 +43,26 @@ The project is organized into modular Django apps for clear separation of concer
 
 ```
 ├── apps/
-│   ├── home/        # Welcome endpoint
-│   ├── users/       # User models, authentication, permissions, and roles
-│   ├── products/    # Product, Category, and Review management
-│   └── orders/      # Order processing, payment, and tracking
-├── config/          # Django project settings and main URL configuration
-├── static/          # Static assets
-└── templates/       # HTML templates
+│   ├── home/
+│   ├── users/
+│   ├── products/
+│   └── orders/
+├── config/
+│   ├── settings.py
+│   ├── urls.py
+│   ├── asgi.py
+│   └── routing.py
+├── static/
+└── templates/
 ```
 
 ## API Overview
-   *   **Base URL**: `https://freshbasket-backend-five.vercel.app/api/`
+   *   **Base URL**: `https://freshbasket-backend-vn3f.onrender.com/api/`
+   * **Base WebSocket URL**: `wss://freshbasket-backend-vn3f.onrender.com/ws/`
 
 #### Documentation:
-   *   **Swagger UI**: `https://freshbasket-backend-five.vercel.app/api/schema/swagger-ui/`
-   *   **Redoc**: `https://freshbasket-backend-five.vercel.app/api/schema/redoc/`
+   *   **Swagger UI**: `https://freshbasket-backend-vn3f.onrender.com/api/schema/swagger-ui/`
+   *   **Redoc**: `https://freshbasket-backend-vn3f.onrender.com/api/schema/redoc/`
 
 
 ## Setup and Installation
@@ -96,7 +109,8 @@ cd FreshBasket-Backend
 
 7. **Run development server**
    ```bash
-   python manage.py runserver
+   # Redis must be running before starting the Django server.
+   uvicorn config.asgi:application --reload
    ```
    Access the application at `http://localhost:8000/`.
 
@@ -129,7 +143,8 @@ cd FreshBasket-Backend
 
 5. **Run development server**
    ```bash
-   python manage.py runserver
+   # Ensure Redis is running before starting the Django server.
+   uvicorn config.asgi:application --reload
    ```
    Access the application at `http://localhost:8000/`.
 
@@ -155,14 +170,23 @@ The following environment variables are required for the application to run. The
 | `CLOUDINARY_API_KEY`      | Your Cloudinary API key.                                                  |
 | `CLOUDINARY_API_SECRET`   | Your Cloudinary API secret.                                               |
 | `DATABASE_URL`            | The connection URL for your PostgreSQL database.  
+| `REDIS_URL`               | The connection URL for your Redis instance.                               |
 
 ## 🔐 Authentication & Roles
 The system uses JWT authentication.
 
 Roles:
-* Customer → browse, order, review
-* Delivery Partner → update delivery status
-* Admin → full system control                    
+* Customer
+    * Browse products
+    * Place orders
+    * Leave reviews for purchased products
+    * Track order status
+    * View delivery partner live location
+* Delivery Partner
+    * Share live location
+    * Update delivery status
+* Admin 
+    * full system control                    
 
 ## 🔄 Key Workflows
 🛒 Order Flow
@@ -171,6 +195,8 @@ Roles:
 - Admin assigns delivery partner
 - Delivery partner updates status
 - OTP confirms delivery
+- Delivery partner starts live location sharing
+- Customer tracks rider in real time
 
 💳 Payment Flow
 - Choose Cash on Delivery or SSLCommerz
