@@ -1,13 +1,17 @@
 # FreshBasket Backend
-A scalable, production-ready grocery delivery backend built with **Django**, **Django REST Framework**, and **Django Channels**. FreshBasket provides REST APIs together with real-time order tracking using WebSockets, enabling customers to monitor delivery partners live.
+A scalable, production-ready grocery delivery backend built with **Django**, **Django REST Framework**, **Django Channels**, and **Celery**. FreshBasket provides REST APIs together with real-time order tracking, asynchronous background task processing, Redis-powered caching, and containerized local development with Docker.
 
 ## Features
 
 *   **User Management**: JWT-based authentication, user registration with email verification, and distinct user roles (Customer, Delivery Partner, Admin).
-*   **Product Catalog**: Complete CRUD operations for products and categories.
+*   **Product Catalog**: Complete CRUD operations for products and categories. Data is cached using Redis to reduce database queries and improve API response times.
 *   **Advanced Filtering & Search**: Filter products by category and price range, with full-text search on product names.
-*   **Order Processing**: Create and manage orders with support for Cash on Delivery and online payments via SSLCommerz.
-*   **Stock Management**: Automatic stock reduction upon order confirmation and restoration upon cancellation.
+*   **Order Processing**: 
+    *   Create and manage orders with support for Cash on Delivery and online payments via SSLCommerz.
+    * Order confirmation emails are sent in the background using Celery.
+*   **Stock Management**: 
+    *   Automatic stock reduction upon order confirmation and restoration upon cancellation.
+    * Low-stock notification emails are automatically sent to administrators.
 *   **Delivery Workflow**:
     *   Admins can confirm and assign orders to delivery partners or cancel them.
     *   Delivery partners can update order statuses (Packed, Out for Delivery, Delivered).
@@ -17,25 +21,26 @@ A scalable, production-ready grocery delivery backend built with **Django**, **D
 *   **Payment Integration**: Seamless payment processing with SSLCommerz.
 *   **Cloud Media Storage**: Uses Cloudinary for efficient storage and delivery of product images and user avatars.
 *   **API Documentation**: Auto-generated, interactive API documentation available with Swagger UI and Redoc.
-*   **Deployment Ready**: Configured for easy deployment on Render.
-* **Real-time Order Tracking**
+* **Real-time Order Tracking**:
     * Live delivery partner location updates using Django Channels, WebSockets, and Redis.
     * Public order tracking using a unique tracking code.
     * Delivery partners can start and stop live location sharing.
     * Customers receive real-time rider location updates without refreshing the page.
+* **Containerized Development**: Docker and Docker Compose support for consistent local development.
+*   **Deployment Ready**: Configured for easy deployment on Render.
 
 ## Technology Stack
 
-*   **Backend**: Django, Django REST Framework, Django Channels
-* **Real-time Communication**: WebSockets
-* **ASGI Server**: Uvicorn
-* **Channel Layer**: Redis
-*   **Database**: PostgreSQL
-*   **Authentication**: Django AllAuth, JWT, Dj-Rest-Auth
-*   **Payment Gateway**: SSLCommerz
-*   **File Storage**: Cloudinary
-*   **Deployment**: Whitenoise, Render
-*   **API Documentation**: Swagger UI, Redoc
+* **Backend**: Django, Django REST Framework, Django Channels, Celery
+* **Database**: PostgreSQL
+* **Caching & Message Broker**: Redis
+* **Authentication**: JWT, Django AllAuth
+* **Real-time**: WebSockets, Uvicorn
+* **Payment**: SSLCommerz
+* **Media Storage**: Cloudinary
+* **Containerization**: Docker
+* **Deployment**: Render, WhiteNoise
+* **API Documentation**: Swagger UI, Redoc
 
 ## Project Structure
 
@@ -48,10 +53,13 @@ The project is organized into modular Django apps for clear separation of concer
 │   ├── products/
 │   └── orders/
 ├── config/
+│   ├── __init__.py
 │   ├── settings.py
 │   ├── urls.py
 │   ├── asgi.py
-│   └── routing.py
+│   └── celery.py
+├── docker-compose.yml
+├── Dockerfile
 ├── static/
 └── templates/
 ```
@@ -74,8 +82,19 @@ Follow these steps to set up the project locally for development.
 git clone https://github.com/saminmahmud/FreshBasket-Backend.git
 cd FreshBasket-Backend
 ```
+## Setup with Docker
+```bash
+docker compose up --build
+```
 
-## Setup with UV (Recommended)
+The following services will start automatically:
+
+- Django Backend
+- Redis
+- Celery Worker
+---
+
+## Setup with UV 
 
 1. **Install UV** (if not already installed)
    ```bash
@@ -112,11 +131,9 @@ cd FreshBasket-Backend
    # Redis must be running before starting the Django server.
    uvicorn config.asgi:application --reload
    ```
-   Access the application at `http://localhost:8000/`.
-
 ---
 
-### Setup with Pip
+### Setup with Pip (Alternative)
 
 1. **Create Virtual Environment**
    ```bash
@@ -131,22 +148,27 @@ cd FreshBasket-Backend
    pip install --upgrade pip
    ```
 
-3. **Run migrations**
+3. **Create .env file**
+   ```bash
+   cp .env.example .env
+   ```
+
+4. **Run migrations**
    ```bash
    python manage.py migrate
    ```
 
-4. **Create a superuser**
+5. **Create a superuser**
    ```bash
    python manage.py createsuperuser
    ```
 
-5. **Run development server**
+6. **Run development server**
    ```bash
    # Ensure Redis is running before starting the Django server.
    uvicorn config.asgi:application --reload
    ```
-   Access the application at `http://localhost:8000/`.
+Access the application at `http://localhost:8000/`.
 
 ---
 ## Environment Variables
@@ -191,7 +213,8 @@ Roles:
 ## 🔄 Key Workflows
 🛒 Order Flow
 - User places order
-- Stock is reduced automatically
+- Send order confirmation email
+- Stock is reduced automatically & low-stock email sent if needed
 - Admin assigns delivery partner
 - Delivery partner updates status
 - OTP confirms delivery
