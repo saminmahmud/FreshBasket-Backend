@@ -4,6 +4,7 @@ from apps.products.models import Product
 from apps.orders.utils import generate_otp
 from .models import Order
 from django.db import transaction
+from .tasks import send_order_stock_low_email
 
 
 @receiver(pre_save, sender=Order)
@@ -64,11 +65,19 @@ def handle_stock_change(sender, instance, created, **kwargs):
                 product.stock -= item.quantity
                 product.save()
 
+                if product.stock <= 15:
+                    send_order_stock_low_email.delay(
+                        product.name,
+                        product.id,
+                        product.stock,
+                    )
+
     if new_status == 'cancelled' and previous_status != 'pending':
         with transaction.atomic():
             for item in instance.items.select_related('product'):
                 product = Product.objects.select_for_update().get(pk=item.product.pk)
                 product.stock += item.quantity
                 product.save()
-        
+                
+
         

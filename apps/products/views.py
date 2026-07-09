@@ -9,6 +9,8 @@ from .serializers import CategorySerializer, ProductDetailSerializer, ProductLis
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -20,6 +22,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return [permissions.IsAdminUser()]
         else:
             return [permissions.AllowAny()]
+        
+    @method_decorator(cache_page(60 * 10))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs) 
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -81,6 +87,14 @@ class ProductViewSet(viewsets.ModelViewSet):
             return [permissions.IsAdminUser()]
         else:
             return [permissions.AllowAny()]
+        
+    @method_decorator(cache_page(60 * 10))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @method_decorator(cache_page(60 * 10))
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
 
     
 class FlashSaleProductListAPIView(generics.ListAPIView):
@@ -88,3 +102,7 @@ class FlashSaleProductListAPIView(generics.ListAPIView):
     pagination_class = ProductPagination
     serializer_class = ProductListSerializer
     permission_classes = [permissions.AllowAny]
+    
+    method_decorator(cache_page(60 * 10))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
