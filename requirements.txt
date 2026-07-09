@@ -53,6 +53,7 @@ cloudinary==1.45.0
 colorama==0.4.6
     # via
     #   click
+    #   honcho
     #   uvicorn
 cryptography==49.0.0
     # via pyjwt
@@ -98,6 +99,8 @@ gunicorn==26.0.0
     # via freshbasket (pyproject.toml)
 h11==0.16.0
     # via uvicorn
+honcho==2.0.0
+    # via freshbasket (pyproject.toml)
 httptools==0.8.0
     # via uvicorn
 idna==3.18
