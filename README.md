@@ -68,7 +68,7 @@ The project is organized into modular Django apps for clear separation of concer
    *   **Base URL**: `https://freshbasket-backend-vn3f.onrender.com/api/`
    * **Base WebSocket URL**: `wss://freshbasket-backend-vn3f.onrender.com/ws/`
 
-#### Documentation:
+#### API Documentation:
    *   **Swagger UI**: `https://freshbasket-backend-vn3f.onrender.com/api/schema/swagger-ui/`
    *   **Redoc**: `https://freshbasket-backend-vn3f.onrender.com/api/schema/redoc/`
 
@@ -230,7 +230,8 @@ Roles:
 - Only verified buyers can review products
 - Ratings update product average score
 
-## 🤝 Contributing
-Contributions are welcome! Please fork the repository and create a pull request with your changes.
+## Frontend Repository
+The frontend for FreshBasket is available in a separate repository. You can find it here: [FreshBasket Frontend](https://github.com/saminmahmud/FreshBasket-Frontend.git)
 
-Happy coding! 🚀
+
+### Happy coding! 🚀
