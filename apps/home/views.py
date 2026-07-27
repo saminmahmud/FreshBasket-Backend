@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema
 @extend_schema(
     responses={200: None}
 )
-@api_view(["GET"])
+@api_view(["GET", "HEAD"])
 @permission_classes([AllowAny])
 def welcome_api(request):
     return Response({
