@@ -9,7 +9,7 @@ router.register('users', UserViewSet, basename='user')
 
 urlpatterns = [
     path("users/me/", MeView.as_view(), name="me"),
-    path("", include(router.urls)),
     path("users/delivery-partners/create/", CreateDeliveryPartnerView.as_view(), name="create-delivery-partner"),
     path("users/delivery-partners/<int:pk>/update-active-status/", UpdateDeliveryPartnerActiveStatusView.as_view(), name="update-delivery-partner-active-status"),
+    path("", include(router.urls)),
 ]

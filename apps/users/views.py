@@ -6,6 +6,7 @@ from .serializers import CreateDeliveryPartnerSerializer, UserSerializer, UserWi
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import UserFilter
 from allauth.account.models import EmailAddress
+from django.db.models import Prefetch
 
 User = get_user_model()
 
@@ -30,7 +31,11 @@ class MeView(generics.RetrieveUpdateAPIView):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.select_related('address', 'delivery_partner_profile').prefetch_related(Prefetch(
+        'emailaddress_set',
+        queryset=EmailAddress.objects.all(),
+        to_attr='email_addresses'
+    ))
     serializer_class = UserWithProfileSerializer
     permission_classes = [permissions.IsAdminUser]
     filter_backends = [DjangoFilterBackend]

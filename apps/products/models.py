@@ -76,17 +76,6 @@ class Product(models.Model):
         elif self.discount > 0:
             return self.discount
         return Decimal('0.00') 
-
-    @property
-    def average_rating(self):
-        reviews = self.reviews.all()
-        if reviews.exists():
-            return reviews.aggregate(models.Avg('rating'))['rating__avg']
-        return None 
-    
-    @property
-    def total_reviews(self):
-        return self.reviews.count()
        
 
 class Review(models.Model):
@@ -107,10 +96,6 @@ class Review(models.Model):
         ]
         ordering = ['-created_at']
 
-    @property
-    def helpful_votes(self):
-        return self.votes.filter(is_helpful=True).count()
-    
 
 class ReviewVote(models.Model):
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='votes')
@@ -119,6 +104,11 @@ class ReviewVote(models.Model):
 
     class Meta:
         unique_together = ('review', 'user')
+        indexes = [
+            models.Index(
+                fields=["review", "is_helpful"]
+            ),
+        ]
 
 
 

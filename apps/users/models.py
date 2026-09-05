@@ -20,11 +20,9 @@ class CustomUser(AbstractUser):
     
     @property
     def avatar(self):
-        try:
-            avatar = self.image.url
-        except:
-            avatar = f"{settings.BACKEND_URL}{static('avatars/default_pic.jpg')}"
-        return avatar
+        if self.image:
+            return self.image.url
+        return f"{settings.BACKEND_URL}{static('avatars/default_pic.jpg')}"
     
     class Meta:
         indexes = [

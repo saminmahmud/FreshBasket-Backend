@@ -20,7 +20,6 @@ class DeliveryCharge(models.Model):
         indexes = [
             models.Index(fields=['delivery_area']),
         ]
-        unique_together = ('delivery_area',)
     
 
 class Address(models.Model):
@@ -34,10 +33,6 @@ class Address(models.Model):
     def __str__(self):
         return f"{self.full_name} - {self.address}, {self.city}"
     
-    class Meta:
-        indexes = [
-            models.Index(fields=['user']),
-        ]
 
 class DeliveryPartnerProfile(models.Model):
     VEHICLE_TYPE_CHOICES = [
@@ -134,15 +129,6 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} for Order #{self.order.id}"
-    
-    class Meta:
-        indexes = [
-            models.Index(fields=['order']),
-            models.Index(fields=['product']),
-        ]
-
-
-from django.db import models
 
 
 class OrderLiveLocation(models.Model):
@@ -164,8 +150,6 @@ class OrderLiveLocation(models.Model):
         ordering = ["-updated_at"]
 
         indexes = [
-            models.Index(fields=["order"]),
-            models.Index(fields=["delivery_partner"]),
             models.Index(fields=["updated_at"]),
         ]
 

@@ -85,11 +85,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         if getattr(self, 'swagger_fake_view', False):
             return Order.objects.none()
         if user.is_staff:
-            return Order.objects.all().select_related('user', 'delivery_partner').prefetch_related('items')
+            return Order.objects.all().select_related('user', 'delivery_partner').prefetch_related('items__product')
         elif user.role == 'delivery_partner':
-            return Order.objects.filter(delivery_partner=user.delivery_partner_profile).select_related('user', 'delivery_partner').prefetch_related('items')
+            return Order.objects.filter(delivery_partner=user.delivery_partner_profile).select_related('user', 'delivery_partner').prefetch_related('items__product')
         else:
-            return Order.objects.filter(user=user).select_related('user', 'delivery_partner').prefetch_related('items')
+            return Order.objects.filter(user=user).select_related('user', 'delivery_partner').prefetch_related('items__product')
 
 
 class OTPVerificationAPIView(APIView):
@@ -197,7 +197,7 @@ class OrderTrackingAPIView(APIView):
 
     def get(self, request, tracking_code):
         try:
-            order = Order.objects.select_related("delivery_partner").prefetch_related( "items", "items__product").get(tracking_code=tracking_code)
+            order = Order.objects.select_related("delivery_partner", "live_location", "delivery_partner__user").prefetch_related( "items", "items__product").get(tracking_code=tracking_code)
             serializer = self.serializer_class(order)
             return Response({"data": serializer.data}, status=status.HTTP_200_OK)
         except Order.DoesNotExist:

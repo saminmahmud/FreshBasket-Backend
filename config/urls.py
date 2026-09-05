@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from allauth.account.views import ConfirmEmailView
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from django.conf import settings
 
 
 urlpatterns = [
@@ -22,6 +23,9 @@ urlpatterns = [
     path("api/", include("apps.products.urls")),
     path("api/", include("apps.orders.urls"), name="orders"),
 ]
+
+if settings.DEBUG:
+    urlpatterns += [path('silk/', include('silk.urls', namespace='silk')),]
     
 handler400 = 'config.exceptions.handler400'
 handler403 = 'config.exceptions.handler403'

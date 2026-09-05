@@ -19,7 +19,7 @@ class CategoryForProductSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     user = UserMiniSerializer(read_only=True)
-    helpful_votes = serializers.IntegerField(read_only=True)
+    helpful_votes = serializers.IntegerField(source='helpful_votes_count', read_only=True)
     is_created_helpful_vote = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -27,10 +27,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'rating', 'comment', 'created_at', 'helpful_votes', 'is_created_helpful_vote']
         
     def get_is_created_helpful_vote(self, obj):
-        user = self.context['request'].user
-        if user.is_authenticated:
-            return obj.votes.filter(user=user, is_helpful=True).exists()
-        return False
+        if not self.context['request'].user.is_authenticated:
+            return False
+
+        return bool(
+            getattr(obj, 'current_user_helpful_votes', [])
+        )
 
 
 class ReviewCreateSerializer(serializers.ModelSerializer):
@@ -102,9 +104,11 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.BooleanField)
     def get_is_create_review(self, obj):
         user = self.context['request'].user
-        if user.is_authenticated:
-            if obj.reviews.filter(user=user).exists():
-                return False
+        
+        if not user.is_authenticated:
+            return False
+    
+        if obj.user_has_review:
+            return False
 
-            return OrderItem.objects.filter(product=obj, order__user=user, order__order_status='delivered').exists()
-        return False
+        return obj.user_can_review

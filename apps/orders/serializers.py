@@ -7,6 +7,8 @@ from apps.products.models import Product
 from allauth.account.models import EmailAddress
 from datetime import timedelta
 from django.utils import timezone
+from django.db import transaction
+
 
 class ProductForOrderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,6 +57,7 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['user', 'subtotal', 'total_price', 'is_paid', 'otp', 'is_otp_verified', 'delivery_charge', 'created_at', 'updated_at']
 
+    @transaction.atomic
     def create(self, validated_data):
         items_data = validated_data.pop('items')
         order = Order.objects.create(**validated_data)

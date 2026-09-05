@@ -90,39 +90,45 @@ class UserWithProfileSerializer(serializers.ModelSerializer):
         return user.avatar
     
     def get_is_active(self, user):
-        email_address = EmailAddress.objects.filter(user=user, email=user.email).first()
-        if email_address:
-            return email_address.verified
+        email_address = getattr(user, 'email_addresses', None)
+        if email_address is not None:
+            for email in email_address:
+                if email.email == user.email:
+                    return email.verified
         return False
         
     def get_profile(self, user):
-        if user.role == 'customer' or user.role == 'admin':
-            try:
-                address = user.address
-                return {
-                    'id': address.id,
-                    'full_name': address.full_name,
-                    'phone': address.phone,
-                    'address': address.address,
-                    'city': address.city,
-                    'postal_code': address.postal_code,
-                }
-            except Address.DoesNotExist:
+        if user.role in ["customer", "admin"]:
+            address = getattr(user, "address", None)
+
+            if not address:
                 return None
-        elif user.role == 'delivery_partner':
-            try:
-                profile = user.delivery_partner_profile
-                return {
-                    'id': profile.id,
-                    'user_id': profile.user_id,
-                    'full_name': profile.full_name,
-                    'phone': profile.phone,
-                    'address': profile.address,
-                    'vehicle_type': profile.vehicle_type,
-                    'vehicle_number': profile.vehicle_number,
-                }
-            except DeliveryPartnerProfile.DoesNotExist:
+
+            return {
+                "id": address.id,
+                "full_name": address.full_name,
+                "phone": address.phone,
+                "address": address.address,
+                "city": address.city,
+                "postal_code": address.postal_code,
+            }
+
+        if user.role == "delivery_partner":
+            profile = getattr(user, "delivery_partner_profile", None)
+
+            if not profile:
                 return None
+
+            return {
+                "id": profile.id,
+                "user_id": profile.user_id,
+                "full_name": profile.full_name,
+                "phone": profile.phone,
+                "address": profile.address,
+                "vehicle_type": profile.vehicle_type,
+                "vehicle_number": profile.vehicle_number,
+            }
+
         return None
     
 

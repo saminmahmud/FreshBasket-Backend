@@ -78,7 +78,7 @@ INSTALLED_APPS = [
 ]
 
 if DEBUG:
-    INSTALLED_APPS += ['whitenoise.runserver_nostatic']  # Use WhiteNoise's static file handling in development
+    INSTALLED_APPS += ['whitenoise.runserver_nostatic', 'silk',] 
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -92,6 +92,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
 ]
+
+if DEBUG:
+    MIDDLEWARE += ['silk.middleware.SilkyMiddleware',]
 
 ROOT_URLCONF = 'config.urls'
 

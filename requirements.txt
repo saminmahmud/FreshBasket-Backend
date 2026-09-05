@@ -70,6 +70,7 @@ django==6.0
     #   django-allauth
     #   django-cors-headers
     #   django-filter
+    #   django-silk
     #   djangorestframework
     #   djangorestframework-simplejwt
     #   drf-spectacular
@@ -85,6 +86,8 @@ django-filter==25.2
     # via freshbasket (pyproject.toml)
 django-resized==1.0.3
     # via freshbasket (pyproject.toml)
+django-silk==5.5.2
+    # via freshbasket (pyproject.toml)
 djangorestframework==3.17.1
     # via
     #   freshbasket (pyproject.toml)
@@ -95,6 +98,8 @@ djangorestframework-simplejwt==5.5.1
     # via freshbasket (pyproject.toml)
 drf-spectacular==0.29.0
     # via freshbasket (pyproject.toml)
+gprof2dot==2025.4.14
+    # via django-silk
 gunicorn==26.0.0
     # via freshbasket (pyproject.toml)
 h11==0.16.0
@@ -167,7 +172,9 @@ six==1.17.0
     #   cloudinary
     #   python-dateutil
 sqlparse==0.5.5
-    # via django
+    # via
+    #   django
+    #   django-silk
 sslcommerz-lib==1.0
     # via freshbasket (pyproject.toml)
 tzdata==2026.2
