@@ -1,7 +1,7 @@
+import threading
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema
 from rest_framework.response import Response
-
 from apps.orders.tasks import send_order_confirmation_email
 from .serializers import AdminDashboardSerializer, OrderLiveLocationSerializer, OrderSerializer, AddressSerializer, DeliveryChargeSerializer, OTPVerificationSerializer, OrderTrackingSerializer
 from .models import Order, Address, DeliveryCharge, OrderLiveLocation
@@ -65,7 +65,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         order = serializer.save(user=request.user)
 
         if order.payment_method == "cash_on_delivery":
-            send_order_confirmation_email.delay(order.tracking_code, request.user.email)
+            # send_order_confirmation_email.delay(order.tracking_code, request.user.email)
+            email_thread = threading.Thread(target=send_order_confirmation_email, args=(order.tracking_code, request.user.email))
+            email_thread.start()
             return Response({
                 "message": "Order created successfully (Cash on Delivery)",
                 "order_id": order.id
@@ -171,7 +173,9 @@ def Purchase(request, order_id, tran_id):
         order_qs.is_paid = True
         order_qs.transaction_id = tran_id
         order_qs.save()
-        send_order_confirmation_email.delay(order_qs.tracking_code, order_qs.user.email)
+        # send_order_confirmation_email.delay(order_qs.tracking_code, order_qs.user.email)
+        email_thread = threading.Thread(target=send_order_confirmation_email, args=(order_qs.tracking_code, order_qs.user.email))
+        email_thread.start()
         return HttpResponseRedirect(f'{FRONTEND_URL}/checkout?status=success&order_id={order_id}')
 
     return HttpResponseRedirect(f'{FRONTEND_URL}/checkout?status=failed')

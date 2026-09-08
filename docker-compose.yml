@@ -29,20 +29,20 @@ services:
     networks:
       - freshbasket-network
   
-  celery:
-    image: freshbasket
-    container_name: celery-container
-    command: celery -A config worker -E -l info
-    volumes:
-      - .:/app
-    env_file:
-      - .env
-    depends_on:
-      - redis
-      - postgres
-      - web
-    networks:
-      - freshbasket-network
+  # celery:
+  #   image: freshbasket
+  #   container_name: celery-container
+  #   command: celery -A config worker -E -l info
+  #   volumes:
+  #     - .:/app
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - redis
+  #     - postgres
+  #     - web
+  #   networks:
+  #     - freshbasket-network
 
   postgres:
     image: postgres:16

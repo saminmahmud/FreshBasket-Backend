@@ -304,17 +304,17 @@ CLOUDINARY_STORAGE = {
 }
 
 
-if DEBUG:
-    CELERY_BROKER_URL = "redis://redis:6379/0"
-else:
-    CELERY_BROKER_URL = config("REDIS_URL")
+# if DEBUG:
+#     CELERY_BROKER_URL = "redis://redis:6379/0"
+# else:
+#     CELERY_BROKER_URL = config("REDIS_URL")
 
-CELERY_BROKER_TRANSPORT_OPTIONS = {
-    "polling_interval": 20,
-}
+# CELERY_BROKER_TRANSPORT_OPTIONS = {
+#     "polling_interval": 20,
+# }
 
-CELERY_TIMEZONE = "UTC"
-CELERY_TASK_IGNORE_RESULT = True
+# CELERY_TIMEZONE = "UTC"
+# CELERY_TASK_IGNORE_RESULT = True
 
 
 if DEBUG:

@@ -1,3 +1,4 @@
+import threading
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from apps.products.models import Product
@@ -66,11 +67,13 @@ def handle_stock_change(sender, instance, created, **kwargs):
                 product.save()
 
                 if product.stock <= 15:
-                    send_order_stock_low_email.delay(
-                        product.name,
-                        product.id,
-                        product.stock,
-                    )
+                    # send_order_stock_low_email.delay(
+                    #     product.name,
+                    #     product.id,
+                    #     product.stock,
+                    # )
+                    email_thread = threading.Thread(target=send_order_stock_low_email, args=(product.name, product.id, product.stock))
+                    email_thread.start()
 
     if new_status == 'cancelled' and previous_status != 'pending':
         with transaction.atomic():
