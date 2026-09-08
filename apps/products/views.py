@@ -80,11 +80,13 @@ class ReviewVoteAPIView(APIView):
         if not created:
             vote.is_helpful = not vote.is_helpful
             vote.save()
+            
+        total_helpful = ReviewVote.objects.filter(review=review, is_helpful=True).count()
 
         return Response({
             'review_id': review.id,
             'is_helpful': vote.is_helpful,
-            'total_helpful': review.helpful_votes
+            'total_helpful': total_helpful
         })
 
 
