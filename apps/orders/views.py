@@ -19,6 +19,7 @@ from django.contrib.auth import get_user_model
 from apps.products.models import Product
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.db import transaction
 
 User = get_user_model()
 
@@ -92,6 +93,13 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Order.objects.filter(delivery_partner=user.delivery_partner_profile).select_related('user', 'delivery_partner').prefetch_related('items__product')
         else:
             return Order.objects.filter(user=user).select_related('user', 'delivery_partner').prefetch_related('items__product')
+    
+    def perform_update(self, serializer):
+        try:
+            with transaction.atomic():
+                instance = serializer.save()
+        except ValidationError as e:
+            raise ValidationError({"detail": str(e)})
 
 
 class OTPVerificationAPIView(APIView):

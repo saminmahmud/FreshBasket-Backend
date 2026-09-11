@@ -64,8 +64,12 @@ class OrderSerializer(serializers.ModelSerializer):
 
         subtotal = 0
         for item_data in items_data:
-            product = item_data['product']
             quantity = item_data['quantity']
+            product = Product.objects.select_for_update().get(pk=item_data['product'].pk)
+  
+            if product.stock < quantity:
+                raise serializers.ValidationError(f"Product '{product.name}' is out of stock.")
+            
             price = product.final_price * quantity
             OrderItem.objects.create(order=order, product=product, quantity=quantity, price=price)
             subtotal += price
