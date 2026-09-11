@@ -8,6 +8,8 @@ from allauth.account.models import EmailAddress
 from datetime import timedelta
 from django.utils import timezone
 from django.db import transaction
+from .tasks import send_order_stock_low_email
+import threading
 
 
 class ProductForOrderSerializer(serializers.ModelSerializer):
@@ -69,6 +71,16 @@ class OrderSerializer(serializers.ModelSerializer):
   
             if product.stock < quantity:
                 raise serializers.ValidationError(f"Product '{product.name}' is out of stock.")
+            
+            product.stock -= quantity
+            product.save()
+            
+            if product.stock <= 15:
+                email_thread = threading.Thread(
+                    target=send_order_stock_low_email,
+                    args=(product.name, product.id, product.stock),
+                )
+                email_thread.start()
             
             price = product.final_price * quantity
             OrderItem.objects.create(order=order, product=product, quantity=quantity, price=price)

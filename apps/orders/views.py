@@ -95,11 +95,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Order.objects.filter(user=user).select_related('user', 'delivery_partner').prefetch_related('items__product')
     
     def perform_update(self, serializer):
-        try:
-            with transaction.atomic():
-                instance = serializer.save()
-        except ValidationError as e:
-            raise ValidationError({"detail": str(e)})
+        with transaction.atomic():
+            serializer.save()
 
 
 class OTPVerificationAPIView(APIView):
@@ -197,7 +194,12 @@ def Cancle_or_Fail(request, order_id):
     order_qs = Order.objects.filter(id=order_id, is_paid=False).first()
     
     if order_qs:
-        order_qs.delete() 
+        with transaction.atomic():
+            for item in order_qs.items.select_related('product'):
+                product = Product.objects.select_for_update().get(pk=item.product.pk)
+                product.stock += item.quantity
+                product.save()
+            order_qs.delete() 
         return HttpResponseRedirect(f'{FRONTEND_URL}/checkout?status=failed')
 
     return HttpResponseRedirect(f'{FRONTEND_URL}/checkout?status=failed')

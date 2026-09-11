@@ -1,11 +1,9 @@
-import threading
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from apps.products.models import Product
 from apps.orders.utils import generate_otp
 from .models import Order
 from django.db import transaction
-from .tasks import send_order_stock_low_email
 
 
 @receiver(pre_save, sender=Order)
@@ -50,32 +48,9 @@ def handle_stock_change(sender, instance, created, **kwargs):
     if not previous:
         return
 
-    previous_status = previous.order_status
     new_status = instance.order_status
 
-    if previous_status == 'pending' and new_status == 'confirmed':
-        with transaction.atomic():
-            for item in instance.items.select_related('product'):
-                product = item.product
-
-                product = Product.objects.select_for_update().get(pk=product.pk)
-
-                if product.stock < item.quantity:
-                    raise Exception("Out of stock")
-
-                product.stock -= item.quantity
-                product.save()
-
-                if product.stock <= 15:
-                    # send_order_stock_low_email.delay(
-                    #     product.name,
-                    #     product.id,
-                    #     product.stock,
-                    # )
-                    email_thread = threading.Thread(target=send_order_stock_low_email, args=(product.name, product.id, product.stock))
-                    email_thread.start()
-
-    if new_status == 'cancelled' and previous_status != 'pending':
+    if new_status == 'cancelled':
         with transaction.atomic():
             for item in instance.items.select_related('product'):
                 product = Product.objects.select_for_update().get(pk=item.product.pk)
