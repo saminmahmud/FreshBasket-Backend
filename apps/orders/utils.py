@@ -31,9 +31,6 @@ def create_sslcommerz_session(order_id):
         
         tran_id = generate_transaction_id()
 
-        order_qs.transaction_id = tran_id
-        order_qs.save()
-
         store_settings = {
             'store_id': STORE_ID,  
             'store_pass': STORE_PASSWORD,
@@ -65,6 +62,10 @@ def create_sslcommerz_session(order_id):
 
         # Call SSLCommerz to create a session
         response = sslcz.createSession(post_body)
+        
+        order_qs.transaction_id = tran_id
+        order_qs.save()
+        
         return response
     except Exception as e:
         return {'error': str(e)}

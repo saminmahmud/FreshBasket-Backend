@@ -92,7 +92,7 @@ class Order(models.Model):
     )
 
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
-    transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    transaction_id = models.CharField(max_length=100, null=True, blank=True, unique=True)
     tracking_code = models.CharField(max_length=100, null=True, blank=True)
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='pending')
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
