@@ -102,7 +102,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         queryset = Product.objects.select_related('category').annotate(
             average_rating=Avg('reviews__rating'),
             total_reviews=Count('reviews', distinct=True),
-        )
+        ).order_by('-created_at')
 
         if self.action == 'retrieve':
             user = self.request.user
@@ -175,11 +175,10 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     
 class FlashSaleProductListAPIView(generics.ListAPIView):
-    # queryset = Product.objects.filter(is_flash_sale=True).select_related('category').prefetch_related('reviews', 'reviews__user')
     queryset = Product.objects.filter(is_flash_sale=True).select_related('category').annotate(
             average_rating=Avg('reviews__rating'),
             total_reviews=Count('reviews'),
-        )
+        ).order_by('-created_at')
     pagination_class = ProductPagination
     serializer_class = ProductListSerializer
     permission_classes = [permissions.AllowAny]
