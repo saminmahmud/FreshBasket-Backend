@@ -130,7 +130,11 @@ class OrderStatusUpdateAPIView(APIView):
 
     def patch(self, request, order_id):
         try:
-            order = Order.objects.get(id=order_id)
+            if request.user.is_authenticated and request.user.is_staff:
+                order = Order.objects.get(id=order_id)
+            else:
+                order = Order.objects.get(id=order_id, delivery_partner=request.user.delivery_partner_profile)
+            
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=404)
         
@@ -155,7 +159,10 @@ class OrderStatusCancelAPIView(APIView):
 
     def patch(self, request, order_id):
         try:
-            order = Order.objects.get(id=order_id)
+            if request.user.is_authenticated and request.user.is_staff:
+                order = Order.objects.get(id=order_id)
+            else:
+                order = Order.objects.get(id=order_id, delivery_partner=request.user.delivery_partner_profile)
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=404)
         
