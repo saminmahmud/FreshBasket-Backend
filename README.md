@@ -83,6 +83,9 @@ git clone https://github.com/saminmahmud/FreshBasket-Backend.git
 cd FreshBasket-Backend
 ```
 ## Setup with Docker
+Docker Compose is the easiest way to run the project with its required services.
+
+Make sure Docker is installed and running, then execute:
 ```bash
 docker compose up --build
 ```
@@ -91,7 +94,12 @@ The following services will start automatically:
 
 - Django Backend
 - Redis
-- Celery Worker
+- PostgreSQL Database
+
+To stop the services:
+```bash
+docker compose down
+```
 ---
 
 ## Setup with UV 
@@ -126,9 +134,19 @@ The following services will start automatically:
    python manage.py createsuperuser
    ```
 
-7. **Run development server**
+7. **Start Redis**
+
+   Redis must be running before starting the Django application.
+
+   If Redis is installed locally, start the Redis server according to your operating system.
+
+   Alternatively, you can run Redis using Docker:
    ```bash
-   # Redis must be running before starting the Django server.
+   docker run --name freshbasket-redis -p 6379:6379 -d redis:alpine
+   ```
+
+8. **Run development server**
+   ```bash
    uvicorn config.asgi:application --reload
    ```
 ---
@@ -163,9 +181,16 @@ The following services will start automatically:
    python manage.py createsuperuser
    ```
 
-6. **Run development server**
+6. **Start Redis**
+
+   Redis must be running before starting the Django application.
+
+   You can run Redis using Docker if it is not installed locally:
    ```bash
-   # Ensure Redis is running before starting the Django server.
+   docker run --name freshbasket-redis -p 6379:6379 -d redis:alpine
+   ```
+7. **Run development server**
+   ```bash
    uvicorn config.asgi:application --reload
    ```
 Access the application at `http://localhost:8000/`.
