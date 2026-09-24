@@ -308,18 +308,10 @@ CLOUDINARY_STORAGE = {
 # CELERY_TASK_IGNORE_RESULT = True
 
 
-if DEBUG:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": "redis://redis:6379/0", 
-        }
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": config("REDIS_URL"),
+        "KEY_PREFIX": "freshbasket_cache"
     }
-else:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": config("REDIS_URL"),
-            "KEY_PREFIX": "freshbasket_cache"
-        }
-    }
+}
