@@ -134,26 +134,15 @@ DATABASES = {
 }
 
 
-if DEBUG:
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels_redis.core.RedisChannelLayer",
-            "CONFIG": {
-                "hosts": ["redis://redis:6379/0"],
-                "prefix": "freshbasket", 
-            },
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [config("REDIS_URL")],
+            "prefix": "freshbasket", 
         },
-    }
-else:
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels_redis.core.RedisChannelLayer",
-            "CONFIG": {
-                "hosts": [config("REDIS_URL")],
-                "prefix": "freshbasket", 
-            },
-        },
-    }
+    },
+}
 
 
 
