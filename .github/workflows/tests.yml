@@ -39,6 +39,13 @@ jobs:
       DEBUG: "True"
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/freshbasket
       REDIS_URL: redis://redis:6379/0
+      STORE_ID: test-store-id
+      STORE_PASSWORD: test-store-password
+      EMAIL: test@gmail.com
+      EMAIL_PASSWORD: test-password
+      CLOUD_NAME: test-cloud-name
+      CLOUDINARY_API_KEY: test-cloudinary-api-key
+      CLOUDINARY_API_SECRET: test-cloudinary-api-secret
 
     steps:
       - name: Checkout code
